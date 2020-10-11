@@ -1,6 +1,6 @@
 import { Document, Schema } from "mongoose";
-import Itinerary from "../lists/Itinerary";
-import { ITask, options } from "./TaskModel";
+import ITaskList from "../lists/TaskList";
+import { ITask, options } from "./Task";
 
 
 export interface IMeetTask extends Document,ITask{
@@ -20,7 +20,7 @@ const meet_schema = new Schema({
 meet_schema.pre<IMeetTask>("findOneAndDelete",async function (next) {
     
     try {
-        if(await Itinerary.findByIdAndDelete(this.date_itinerary)){
+        if(await ITaskList.findByIdAndDelete(this.date_itinerary)){
             return next();
         }
         else{

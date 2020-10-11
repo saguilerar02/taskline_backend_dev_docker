@@ -1,5 +1,5 @@
 import { Document, Schema } from "mongoose";
-import { ITask } from "./TaskModel";
+import { ITask } from "./Task";
 
 
 export interface IToBuyTask extends Document,ITask{

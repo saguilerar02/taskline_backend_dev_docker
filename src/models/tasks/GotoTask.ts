@@ -1,5 +1,5 @@
 import { Document, Schema } from "mongoose";
-import { ITask } from "./TaskModel";
+import { ITask } from "./Task";
 
 
 export interface IGotoTask extends Document,ITask{
@@ -12,7 +12,10 @@ export interface IGotoTask extends Document,ITask{
 
 export const goto_schema = new Schema({
     site:{
-        name: String,
+        name:{
+            type:String,
+            required:[true,"The site name is required"]
+        },
         location: {
             type: {
                 type: String,

@@ -8,9 +8,9 @@ export interface IUser extends Document{
     username:String,
     password:String,
     name:String,
-    phone_number:String,
+    phoneNumber:String,
     birth_day:Date,
-    is_active:Boolean,
+    active:Boolean,
 }
 
 export let user_schema = new Schema({
@@ -32,21 +32,35 @@ export let user_schema = new Schema({
         trim: true,
         index:true
       },
-      password:{
-        type: String,
-        required:[true, 'Password is required']
+    password:{
+      type: String,
+      required:[true, 'Password is required'],
+      minlength:[12,"La contraseña es demasiado corta"]
+    },
+    name:{
+      type:String,
+      match:[/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{3,29}$/,'Invalid username'],
+      required:[true, 'Name is required'],
+      trim: true,
+    },
+    phoneNumber:{
+      type:String,
+      match:[/^(\+34|0034|34)?[6789]\d{8}$/,'Invalid phone number'],
+      trim: true,
+    },
+    birthDate:{
+      type:Date,
+      validate: {
+        validator: function (date:Date){
+          return moment().diff(date, "year")<-5? true:false;
+        },
+        message:'The birthdate date need to be more than 5 years  on the past'
       },
-      name:{
-        type:String,
-        match:[/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{3,29}$/,'Invalid username'],
-        required:[true, 'Name is required'],
-        trim: true,
-      },
-      phone_number:{
-        type:String,
-        match:[/^(\+34|0034|34)?[6789]\d{8}$/,'Invalid phone number'],
-        trim: true,
-      }
+    },
+    active:{
+      type:Boolean,
+      default:true
+    }
 }); 
 
 

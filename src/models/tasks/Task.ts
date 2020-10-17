@@ -33,7 +33,7 @@ export const task_schema = new Schema(
         },
         created_at: {
             type:Date,
-            default: new Date(),
+            default: moment().toDate(),
         },
         archivement_date_time: {
             type:Date,
@@ -58,7 +58,7 @@ export const task_schema = new Schema(
             type:String,
             enum:["PENDING","COMPLETED","FAIL"],
             required:true,
-            default:"COMPLETED"
+            default:"PENDING"
         },
     },options
 );

@@ -1,11 +1,11 @@
 import { Document, Schema } from "mongoose";
-import ITaskList from "../lists/TaskList";
+import TaskList from "../lists/TaskList";
 import { ITask, options } from "./Task";
 
 
 export interface IMeetTask extends Document,ITask{
     partners:[Schema.Types.ObjectId],
-    date_itinerary:Schema.Types.ObjectId
+    meet_itinerary:Schema.Types.ObjectId
 }
 
 const meet_schema = new Schema({
@@ -17,19 +17,19 @@ const meet_schema = new Schema({
     date_itinerary:Schema.Types.ObjectId
 },options);
 
-meet_schema.pre<IMeetTask>("findOneAndDelete",async function (next) {
-    
-    try {
-        if(await ITaskList.findByIdAndDelete(this.date_itinerary)){
-            return next();
+meet_schema.pre<IMeetTask>("remove",async function (next) {
+
+    if(this.meet_itinerary){
+        let query = await TaskList.deleteOne({"_id":this.meet_itinerary});
+        if(query.ok && query.deletedCount && query.deletedCount>0){
+            next()
+        }else{
+            throw new Error("Impossible to delete this task, try again later");     
         }
-        else{
-            throw Error();
-        }
-    } catch (error) {
-        throw error;
+    }else{
+        throw new Error("No tasklist referenced");   
     }
-})
+});
 
 export default meet_schema;
 

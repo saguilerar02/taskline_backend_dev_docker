@@ -1,5 +1,5 @@
 import { Document, Schema } from "mongoose";
-import { ITask } from "./Task";
+import Task, { ITask } from "./Task";
 
 
 export interface IToBuyTask extends Document,ITask{
@@ -27,7 +27,6 @@ export const to_buy_schema = new Schema({
         }
     }
 });
-
 
 
 

@@ -1,5 +1,5 @@
 import {Document,Schema, model } from "mongoose";
-import Task, { GotoTask } from "../tasks/Task";
+import Task, { GotoTask } from "../tasks/TASK/Task";
 
 export interface ITaskList extends Document{
 
@@ -20,8 +20,19 @@ export const itinerary_schema = new Schema(
         },
         tasks:[{
             type:Schema.Types.ObjectId,
-            ref:"Task"
-        }]
+            ref:"Task",
+            validate:{
+                validator:
+                    function(v:[Schema.Types.ObjectId]){
+                        return v.length>5?false:true
+                    },
+                message:"Only 5 task per list"
+            }
+            
+        }],
+        
+
+            
     }
 );
 

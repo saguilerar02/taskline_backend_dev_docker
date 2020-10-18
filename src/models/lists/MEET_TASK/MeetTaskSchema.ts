@@ -1,21 +1,22 @@
-import { Document, Schema } from "mongoose";
-import TaskList from "../lists/TaskList";
-import { ITask, options } from "./Task";
+import { Schema } from "mongoose";
+import TaskList from "../TaskList";
+import { goto_schema } from "../../tasks/GOTO_TASK/GotoTaskSchema";
+import { options } from "../../tasks/TASK/interfaces/DiscriminatorOptions";
+import { IMeetTask } from "./IMeetTask";
 
 
-export interface IMeetTask extends Document,ITask{
-    partners:[Schema.Types.ObjectId],
-    meet_itinerary:Schema.Types.ObjectId
-}
+/*
 
 const meet_schema = new Schema({
-    partners:{
-        type:[Schema.Types.ObjectId],
-        default:undefined,
-        required:true
-    },
-    date_itinerary:Schema.Types.ObjectId
+    
+    meet_itinerary:{
+        type:Schema.Types.ObjectId,
+        ref:"Task"
+    }
+
 },options);
+
+meet_schema.add(goto_schema);
 
 meet_schema.pre<IMeetTask>("remove",async function (next) {
 
@@ -33,5 +34,5 @@ meet_schema.pre<IMeetTask>("remove",async function (next) {
 
 export default meet_schema;
 
-
+*/
 

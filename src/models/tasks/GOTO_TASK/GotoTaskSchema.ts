@@ -1,14 +1,4 @@
-import { Document, Schema } from "mongoose";
-import { ITask } from "./Task";
-
-
-export interface IGotoTask extends Document,ITask{
-    site:{
-            name: String,
-            location: Schema.Types.Mixed
-        }
-
-}
+import { Schema } from "mongoose";
 
 export const goto_schema = new Schema({
     site:{
@@ -27,7 +17,11 @@ export const goto_schema = new Schema({
                 required: true
             }
         }
-    }
+    },
+    partners:{
+        type:[Schema.Types.ObjectId],
+        required:true
+    },
 });
 
 

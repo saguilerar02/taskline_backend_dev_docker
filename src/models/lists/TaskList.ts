@@ -49,5 +49,5 @@ itinerary_schema.pre<ITaskList>("remove",async function(next){
 
 })
 
-const TaskList =  model("Itinerary", itinerary_schema, "Lists");
+const TaskList =  model("Itinerary", itinerary_schema, "lists");
 export default TaskList;

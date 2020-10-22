@@ -75,7 +75,7 @@ task_schema.pre<ITask>("save",async function (next) {
 task_schema.pre<ITask>("remove",async function (next) {
 
     if(this.id_tasklist){
-         let tl = await TaskList.findOneAndUpdate({"_id":this.id_tasklist},{ '$push': { 'tasks': this._id } })
+         let tl = await TaskList.findOneAndUpdate({"_id":this.id_tasklist},{ '$pull': { 'tasks': this._id } })
         if(tl){
             next()
         }else{

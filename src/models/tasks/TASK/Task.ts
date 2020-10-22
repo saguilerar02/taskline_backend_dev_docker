@@ -9,7 +9,7 @@ import { IToCheckTask } from "../TO_CHECK_TASK/IToCheckTask";
 
 
 
-const Task =  model("Task", task_schema, "Tasks");
+const Task =  model("Task", task_schema, "tasks");
 
 export const GotoTask = Task.discriminator<IGotoTask>("GotoTask",goto_schema,"GotoTask");
 export const ToCheckTask = Task.discriminator<IToCheckTask>("ToCheckTask",toCheckTaskSchema,"ToCheckTask");

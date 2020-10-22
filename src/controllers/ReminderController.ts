@@ -1,24 +1,23 @@
-import Task from "../models/tasks/TASK/Task";
 import { Request, Response } from 'express'
 import { responseErrorMaker } from "../Handlers/ErrorHandler";
-import Reminder from "../models/reminders/Reminder";
+import Reminder from '../models/reminders/Reminder';
 
-export const saveTask = async function (request: Request, res: Response) {
+export const saveReminder = async function (request: Request, res: Response) {
 
-    if (request.body && Object.keys(request.body).length > 0) {
+    if (request.body.reminders && Object.keys(request.body.reminders).length > 0) {
         let session = null;
 
         try {
-            session = await Task.db.startSession();
+            session = await Reminder.db.startSession();
             await session.startTransaction();
             console.log("Transaction Started");
 
-            let t = await Task.create(request.body);
+            let t = await Reminder.create(request.body.reminders);
 
             if (t) {
                 await session.commitTransaction();
                 console.log("Transaction Commited");
-                res.status(201).send({task: t, msg: "Task save success" });
+                res.status(201).send({reminder: t, msg: "Reminder save success" });
             } else {
                 await session.abortTransaction();
                 console.log("Transaction Aborted");
@@ -43,28 +42,28 @@ export const saveTask = async function (request: Request, res: Response) {
 
 };
 
-export const deleteOneTask = async function (request: Request, res: Response) {
+export const deleteOneReminder = async function (request: Request, res: Response) {
 
     if (request.params["id"] && request.params["id"].length > 0) {
         let session = null;
         try {
-            session = await Task.db.startSession();
+            session = await Reminder.db.startSession();
             await session.startTransaction({});
             console.log("Transaction Started");
-            let t = await Task.findById(request.params["id"]);
+            let t = await Reminder.findById(request.params["id"]);
             if (t) {
                 let deleted = await t.remove();
                 if (deleted) {
                     await session.commitTransaction();
                     console.log("Transaction Commited");
-                    res.status(201).send({ msg: "Task deleted successfully" });
+                    res.status(201).send({ msg: "Reminder deleted successfully" });
                 } else {
                     await session.abortTransaction();
-                    res.status(404).send({ msg: "Impossible to delete this task, try again later" });
+                    res.status(404).send({ msg: "Impossible to delete this reminder, try again later" });
                 }
             } else {
                 await session.abortTransaction();
-                res.status(500).send({ msg: "Task not found" });
+                res.status(500).send({ msg: "Reminder not found" });
             }
         } catch (err) {
             if (session) {
@@ -80,22 +79,22 @@ export const deleteOneTask = async function (request: Request, res: Response) {
 };
 
 
-export const updateTask = async function (request: Request, res: Response) {
+export const updateReminder = async function (request: Request, res: Response) {
 
     if (request.body && Object.keys(request.body).length > 0 && request.params["id"]) {
         let session = null;
         try {
-            session = await Task.db.startSession();
+            session = await Reminder.db.startSession();
             await session.startTransaction();
 
-            let t = await Task.updateOne({ _id: request.params["id"] }, request.body, { runValidators: true });
+            let t = await Reminder.updateOne({ _id: request.params["id"] }, request.body, { runValidators: true });
 
             if (t) {
                 await session.commitTransaction();
-                res.status(201).send({ msg: "Task save success" });
+                res.status(201).send({ msg: "Reminder save success" });
             } else {
                 if (session) await session.abortTransaction();
-                res.status(404).send({ msg: "Task not found" });
+                res.status(404).send({ msg: "Reminder not found" });
             }
         } catch (err) {
             if (err.name === "ValidationError") {
@@ -111,38 +110,4 @@ export const updateTask = async function (request: Request, res: Response) {
     }
 }
 
-
-export const showTimeLine =  async function (req:Request, res:Response) {
-
-    //parametros:   items que quiero , lastValue: ultima Id que he listado
-    try {
-        let tasks;
-        if(!req.params['lastTask']){
-            tasks = await Task.find({ createdBy: req.params["id"] })
-            .sort({archivementDate:-1,_id:-1})
-            .limit(7);
-        }else{
-            tasks = await Task.find(
-                { createdBy: req.params["id"],
-                  _id:{$lt:req.params['lastTask']}})
-            .sort({archivementDate:-1,_id:-1})
-            .limit(7);
-        }
-        
-        if (tasks && tasks.length>0) {
-            res.status(201).send({ timeline:tasks});
-        } else {
-            res.status(404).send({ msg: "Empty timeline" });
-        }
-    } catch (err) {
-
-        res.status(500).send({ msg: 'Something went wrong, retry again' });
-        console.error(err);
-    }
-}
-
-//ENcontrar las tareas ordenadas por fecha e id( id por si hay varias fechas iguales)
-//db.Tasks.find({"created_by":ObjectId("5f89bf49b9cae802c2b5eaeb")}).sort({archivement_date_time: -1, _id:-1}).limit(3)
-//Encontrar las tareas siguientes a partir de la Id de la ultima tarea con la fecha duplicada
-//db.Tasks.find({"created_by":ObjectId("5f89bf49b9cae802c2b5eaeb"),_id: {$lt:ObjectId("5f8df8953c6b4003edf1bfc3")}}).sort({archivement_date_time: -1, _id:-1}).limit(1)
 

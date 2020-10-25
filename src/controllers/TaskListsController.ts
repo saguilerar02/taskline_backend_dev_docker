@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { responseErrorMaker } from '../Handlers/ErrorHandler';
-import TaskList from '../models/lists/TaskList';
+import TaskList from '../models/lists/LIST/TaskList';
 
 export const saveTaskList = async function (request: Request, res: Response) {
 
@@ -14,7 +14,7 @@ export const saveTaskList = async function (request: Request, res: Response) {
 
             if (t) {
                 await session.commitTransaction();
-                res.status(201).send({ msg: "Tasklist save success" });
+                res.status(201).send({ list:t,msg: "Tasklist save success" });
             } else {
                 await session.abortTransaction();
                 res.status(500).send({ msg: 'Something went wrong, retry again' });
@@ -101,26 +101,26 @@ export const updateTaskList = async function (request: Request, res: Response) {
     }
 }
 
-
+/*
 
 export const showUserLists = async function (req:Request, res:Response) {
 
     try {
-        let tasks;
+        let lists;
         if(!req.params['lastTask']){
-            tasks = await TaskList.find({ createdBy: req.params["id"] })
+            lists = await TaskList.find({ createdBy: req.params["id"] })
             .sort({archivementDate:-1,_id:-1})
             .limit(7);
         }else{
-            tasks = await TaskList.find(
+            lists = await TaskList.find(
                 { createdBy: req.params["id"],
                   _id:{$lt:req.params['lastTask']}})
             .sort({archivementDate:-1,_id:-1})
             .limit(7);
         }
         
-        if (tasks && tasks.length>0) {
-            res.status(201).send({ timeline:tasks});
+        if (lists && lists.length>0) {
+            res.status(201).send({ timeline:lists});
         } else {
             res.status(404).send({ msg: "Empty timeline" });
         }
@@ -130,3 +130,4 @@ export const showUserLists = async function (req:Request, res:Response) {
         console.error(err);
     }
 }
+*/

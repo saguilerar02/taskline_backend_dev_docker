@@ -1,17 +1,7 @@
-import {Document, Schema, Model, model } from 'mongoose'
-import moment from 'moment'
-import bcrypt from 'bcrypt';
-
-export interface IUser extends Document{
-
-    email:String,
-    username:String,
-    password:String,
-    name:String,
-    phoneNumber:String,
-    birth_day:Date,
-    active:Boolean,
-}
+import moment from "moment";
+import { Schema } from "mongoose";
+import { IUser } from "./IUser";
+import bcrypt from 'bcrypt'
 
 export let user_schema = new Schema({
 
@@ -71,6 +61,3 @@ user_schema.pre<IUser>("save", async function(next) {
   }
     next();
 });
-
-const User = model<IUser>('User', user_schema, "users");
-export default  User;

@@ -1,26 +1,24 @@
 import { Schema } from "mongoose";
+import { ISendToTask } from "./ISendToTask";
 //import { itemSchema } from "./ItemSchema";
 
-
 export const sendToTaskSchema = new Schema({
-    receivers:{
-        type:[{
-                type:String,
-                match:[/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                    ,'Invalid email'],
-                required:[true,'Email is required'],
-                unique:true,
-                trim:true
-        }],
-        required:true,
-        validate:{
-            validator:
-                function(v:[String]){
-                    return v.length>20?false:true
-                },
-            message:"Only 20 reveivers"
-        }
+     
+    sendTitle: {
+        type:String,
+        minlength:3,
+        maxlength:75,
+        trim:true,
+        required:[true, "El envío necesita un titulo"]
+    },
+    sendBody:{
+        type:String,
+        minlength:3,
+        trim:true,
+        required:[true, "El envío necesita un cuerpo"]
+    },
+    sendBlobURL:{
+        type:String,
+        trim:true
     }
 });
-
-

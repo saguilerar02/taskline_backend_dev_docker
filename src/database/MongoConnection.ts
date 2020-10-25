@@ -9,6 +9,7 @@ var disconnected = chalk.bold.gray;
 var termination = chalk.bold.magenta;
 
 //export this function and imported by server.js
+mongoose.set('useFindAndModify', false);
 
 let connection =function(){
     var dbURL = process.env.DATABASE as string;

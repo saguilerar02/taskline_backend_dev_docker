@@ -1,4 +1,5 @@
-import { ITask } from "../TASK/interfaces/ITask";
+import { ITask } from "../TASK/ITask";
+import {Document} from 'mongoose'
 
 export interface IToCheckTask extends Document,ITask{
     items:[{
@@ -7,3 +8,4 @@ export interface IToCheckTask extends Document,ITask{
         done:Boolean
     }]
 }
+

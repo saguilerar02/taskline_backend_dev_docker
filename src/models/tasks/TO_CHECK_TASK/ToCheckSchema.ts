@@ -1,6 +1,8 @@
 import { Schema } from "mongoose";
 import { itemSchema } from "./ItemSchema";
+import { IToCheckTask } from "./IToCheckTask";
 
+const ITEMS=99
 
 export const toCheckTaskSchema = new Schema({
     items:{
@@ -19,3 +21,13 @@ export const toCheckTaskSchema = new Schema({
 
 
 
+toCheckTaskSchema.pre<IToCheckTask>("validate",function(next){
+
+    if(this.items.length<0 || this.items.length>=ITEMS){
+        throw new Error("Solo puedes añadir "+ITEMS+" items a la lista, aún puedes "+(ITEMS-this.items.length)+" más");
+        
+    }else{
+        next();
+    }
+    
+})

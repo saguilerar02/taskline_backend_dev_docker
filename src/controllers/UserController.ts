@@ -1,7 +1,7 @@
-import User from '../models/User'
-import {json, Request,Response} from 'express'
 import bcrypt from 'bcrypt'
+import { Request, Response } from 'express'
 import jsonwetoken from 'jsonwebtoken'
+import User from '../models/USER/User'
 
 export const signUp= async function(req:Request, res:Response) {
 

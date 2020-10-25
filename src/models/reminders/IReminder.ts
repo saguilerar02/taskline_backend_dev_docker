@@ -8,4 +8,5 @@ export interface IReminder extends Document{
     remindTo:[String] //emails
     status: EnumType
     idTask:Schema.Types.ObjectId
+    createdAt:Date
 }

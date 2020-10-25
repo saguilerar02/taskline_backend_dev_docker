@@ -1,22 +1,43 @@
+import moment from "moment";
 import { Schema } from "mongoose";
+import { ITask } from "../tasks/TASK/ITask";
 import Task from "../tasks/TASK/Task";
 import { IReminder } from "./IReminder";
-import Reminder from "./Reminder";
 
 export const reminder_schema = new Schema(
     {
-        remind_at: {
+        createdAt: {
+            type:Date,
+            default: moment().toDate(),
+        },
+        remindAt: {
             type:Date,
             required:[true, "The reminder date is needed"]
         },
-        reminder_data:{
+        reminderData:{
             type:Schema.Types.Mixed
         },
-        remind_to:{
+        remindTo:{
             type: [String],
-            match:[/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        ,'Invalid email'],
-            required:true,},
+            required:true,
+            validate:{
+                validator:function(v:[String]):any{
+                    if(v.length>0 && v.length<=10){
+                        v.forEach(
+                            email=>{
+                                if (!email.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
+                                    throw new Error("El email no es válido");
+                                }
+                            }
+                        )
+                        return true;
+                    }else{
+                        throw new Error("Solo 10 se puede enviar asignar a 10 usuario o emails diferentes");
+                    }
+                },
+                message:"Debe ser un email válido"
+            }
+        },
         reminded:{
             type:Boolean,
             default:false
@@ -28,32 +49,26 @@ export const reminder_schema = new Schema(
     }
 );
 
-reminder_schema.pre<IReminder>("save",async function (next) {
-    
-    if(this.idTask){
-        let t = await Task.findOneAndUpdate({"_id":this.idTask},{ '$push': { 'reminders': this._id } })
-        if(t){
-            next();
-        }else{
-            next(new Error("Task not found")) ;     
-        }
-    }else{
-        next(new Error("Task id is null or empty"));   
-    }
-    
-});
-
 reminder_schema.pre<IReminder>("remove",async function (next) {
 
     if(this.idTask){
-         let tl = await Task.findOneAndUpdate({"_id":this.idTask},{ '$pull': { 'reminders':{_id:this._id } }});
+         let tl = await Task.findOneAndUpdate({"_id":this.idTask},{ '$pull': { 'reminders':{_id:this._id } }},{ runValidators: true });
         if(tl){
             next()
         }else{
-            throw new Error("TaskList not found");     
+            throw new Error("No se ha encontrado esa Task");     
         }
     }else{
-        throw new Error("TaskList id is null or empty");   
+        throw new Error("Tienes que especificar la ID de la Task de Reminder");   
     }
     
 });
+
+reminder_schema.pre<IReminder>("validate",async function(next){
+
+    if(moment(this.createdAt).diff(this.remindAt, "minute")>-60){
+        throw new Error("La fecha del reminder debe ser 1 hora mayor que la fecha de creación del mismo");
+    }else{
+        next();
+    }
+})

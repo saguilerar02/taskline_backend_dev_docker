@@ -17,11 +17,7 @@ export const goto_schema = new Schema({
                 required: true
             }
         }
-    },
-    partners:{
-        type:[Schema.Types.ObjectId],
-        required:true
-    },
+    }
 });
 
 

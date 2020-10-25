@@ -1,15 +1,11 @@
-import {Document,Schema, model } from "mongoose";
-import Task, { GotoTask } from "../tasks/TASK/Task";
+import moment from "moment";
+import { Schema } from "mongoose";
+import Task from "../../tasks/TASK/Task";
+import { ITaskList } from "./ITaskList";
 
-export interface ITaskList extends Document{
 
-    name: String,
-    tasks:[Schema.Types.ObjectId]
-    created_at:Date,
-    created_by:Schema.Types.ObjectId
-}
 
-export const itinerary_schema = new Schema(
+export const list_schema = new Schema(
     {
         name: {
             type:String,
@@ -23,21 +19,27 @@ export const itinerary_schema = new Schema(
             ref:"Task",
             validate:{
                 validator:
-                    function(v:[Schema.Types.ObjectId]){
-                        return v.length>5?false:true
+                    function(v:any[]){
+                        return v.length>30?false:true
                     },
                 message:"Only 5 task per list"
             }
             
         }],
-        
-
-            
+        createdAt: {
+            type:Date,
+            default: moment().toDate()
+        },
+        createdBy:{
+            type:Schema.Types.ObjectId,
+            ref:"User",
+            required:true
+        }   
     }
 );
 
 
-itinerary_schema.pre<ITaskList>("remove",async function(next){
+list_schema.pre<ITaskList>("remove",async function(next){
 
     const del = await Task.deleteMany({_id:{$in:this.tasks}});
 
@@ -49,5 +51,3 @@ itinerary_schema.pre<ITaskList>("remove",async function(next){
 
 })
 
-const TaskList =  model("Itinerary", itinerary_schema, "lists");
-export default TaskList;

@@ -1,6 +1,8 @@
-import { ITask } from "../TASK/interfaces/ITask";
+import { ITask } from "../TASK/ITask";
+import { Document} from 'mongoose'
 
 export interface ISendToTask extends Document,ITask{
-    
-    receivers:[String]
+    sendTitle:String
+    sendBody:String
+    sendBlobURL:String
 }

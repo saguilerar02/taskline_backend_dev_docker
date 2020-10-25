@@ -40,26 +40,20 @@ export const saveTaskList = async function (request: Request, res: Response) {
 export const deleteOneTaskList = async function (request: Request, res: Response) {
 
     if (request.params["id"] && request.params["id"].length > 0) {
-        let session = null;
         try {
-            session = await TaskList.db.startSession();
-            session.startTransaction({});
-            console.log("Transaction Started");
 
-            let t = await TaskList.findByIdAndDelete(request.params["id"]);
+            let t = await TaskList.findById(request.params["id"]);
             if (t) {
-                session.commitTransaction();
-                res.status(201).send({ msg: "TaskList deleted successfully" });
+                if ( await t.remove()) {
+                    res.status(201).send({ msg: "La lista se ha borrado satisfactoriamente" });
+                } else {
+                    res.status(404).send({ msg: "No se ha podido borrar la lista, intentelo de nuevo más tarde" });
+                }
             } else {
-                if (session) await session.abortTransaction();
-                res.status(404).send({ msg: "TaskList not found" });
+                res.status(500).send({ msg: "Task not found" });
             }
         } catch (err) {
             res.status(500).send({ msg: 'Something went wrong, retry again' });
-            if (session) {
-                await session.abortTransaction();
-                console.log("Transaction aborted");
-            }
         }
     } else {
         res.status(404).send({ msg: "No id in the request" })

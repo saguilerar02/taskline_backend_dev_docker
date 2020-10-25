@@ -1,7 +1,10 @@
 import moment from "moment";
 import { Schema } from "mongoose";
+import Reminder from "../../reminders/Reminder";
+import { ITask } from "../../tasks/TASK/ITask";
 import Task from "../../tasks/TASK/Task";
 import { ITaskList } from "./ITaskList";
+import TaskList from "./TaskList";
 
 
 
@@ -41,9 +44,13 @@ export const list_schema = new Schema(
 
 list_schema.pre<ITaskList>("remove",async function(next){
 
-    const del = await Task.deleteMany({_id:{$in:this.tasks}});
+   
+    let deletedTasks = await Task.deleteMany({_id: { $in: this.tasks } })
+    let deletedtReminders = await Reminder.deleteMany({idTask: { $in: this.tasks } });
 
-    if(del.ok && del.deletedCount==this.tasks.length){
+
+    if(deletedTasks.deletedCount && deletedTasks.deletedCount>0 && 
+        deletedtReminders.deletedCount && deletedtReminders.deletedCount){
         next();
     }else{
         throw new Error("Something went wrong");

@@ -65,7 +65,6 @@ task_schema.pre<ITask>("save",async function (next) {
         let tl:ITaskList|null= await TaskList.findById(this.idTasklist);
         if(tl){
             tl.tasks.push(this.id);
-            
             if(await tl.save()){
                 next();
             }else{
@@ -83,12 +82,14 @@ task_schema.pre<ITask>("save",async function (next) {
 task_schema.pre<ITask>("remove",async function (next) {
 
     if(this.idTasklist){
-        let tl = await TaskList.findOneAndUpdate({"_id":this.idTasklist},{ '$pull': { 'tasks': this._id } },{runValidators:true})
-        let deleted = await Reminder.deleteMany({ _id: { $in: this.reminders } });
-        console.log(deleted);
-        console.log(tl);
-        if(tl && deleted.deletedCount && deleted.deletedCount>this.reminders.length){
-            next()
+        let tl = await TaskList.findOneAndUpdate({"_id":this.idTasklist},{ '$pull': { 'tasks': this._id } })
+        if(tl){
+            let deleted = await Reminder.deleteMany({ _id: { $in: this.reminders } });
+            if(deleted && deleted.deletedCount && deleted.deletedCount>0){
+                next()
+            }else{
+                throw new Error("No se ha podido borrar los reminders");
+            }
         }else{
             throw new Error("TaskList not found");     
         }

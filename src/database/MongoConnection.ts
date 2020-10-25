@@ -11,6 +11,7 @@ var termination = chalk.bold.magenta;
 //export this function and imported by server.js
 mongoose.set('useFindAndModify', false);
 
+
 let connection =function(){
     var dbURL = process.env.DATABASE as string;
      mongoose.connect(dbURL, {useNewUrlParser:true, useUnifiedTopology:true, useCreateIndex:true});

@@ -17,27 +17,6 @@ export const reminder_schema = new Schema(
         reminderData:{
             type:Schema.Types.Mixed
         },
-        remindTo:{
-            type: [String],
-            required:true,
-            validate:{
-                validator:function(v:[String]):any{
-                    if(v.length>0 && v.length<=10){
-                        v.forEach(
-                            email=>{
-                                if (!email.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
-                                    throw new Error("El email no es válido");
-                                }
-                            }
-                        )
-                        return true;
-                    }else{
-                        throw new Error("Solo 10 se puede enviar asignar a 10 usuario o emails diferentes");
-                    }
-                },
-                message:"Debe ser un email válido"
-            }
-        },
         reminded:{
             type:Boolean,
             default:false
@@ -49,10 +28,40 @@ export const reminder_schema = new Schema(
     }
 );
 
+reminder_schema.index({remindAt: 1, idTask: 1,  },{unique: true, backgorund:true});
+
+reminder_schema.pre<IReminder>("save",async function (next) {
+
+    if(this.idTask){
+         let t = await Task.findById(this.idTask);
+        if(t){
+            if(this.remindAt>t.archivementDateTime){
+                throw new Error("La fecha del reminder debe ser menor que la fecha de finalización de la tarea");
+            }
+            if(t.reminders.length>=5){
+                throw new Error("Solo 5 reminders por Tarea");
+            }else{
+                t.reminders.push(this.id);
+                if(await t.save()){
+                    next()}
+                else{
+                    throw new Error("Error");
+                }
+            }
+            
+        }else{
+            throw new Error("No se ha encontrado esa Task");     
+        }
+    }else{
+        throw new Error("Tienes que especificar la ID de la Task de Reminder");   
+    }
+    
+});
+
 reminder_schema.pre<IReminder>("remove",async function (next) {
 
     if(this.idTask){
-         let tl = await Task.findOneAndUpdate({"_id":this.idTask},{ '$pull': { 'reminders':{_id:this._id } }},{ runValidators: true });
+         let tl = await Task.findOneAndUpdate({"_id":this.idTask},{ '$pull': { 'reminders':this._id }});
         if(tl){
             next()
         }else{

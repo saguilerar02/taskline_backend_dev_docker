@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { deleteOneReminder, updateReminder } from '../controllers/ReminderController';
+import { deleteOneReminder, saveReminder, updateReminder } from '../controllers/ReminderController';
 import { deleteOneTask, saveTask, updateTask } from '../controllers/TaskController';
 import { deleteOneTaskList, saveTaskList, updateTaskList } from '../controllers/TaskListsController';
 import { signIn, signUp } from '../controllers/UserController';
@@ -20,9 +20,13 @@ router.put("/list/update/:id", updateTaskList);
 
 router.delete("/list/delete/:id", deleteOneTaskList);
 
+router.post("/reminder/create", saveReminder);
+
 router.put("/reminder/update/:id", updateReminder);
 
 router.delete("/reminder/delete/:id", deleteOneReminder);
+
+//router.get("/timeline/:user/:lastTask",showTimeLine);
 
 router.post("/signup",signUp);
 router.post("/signin",signIn);

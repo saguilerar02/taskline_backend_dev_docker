@@ -1,10 +1,8 @@
 import moment from "moment";
 import { Schema } from "mongoose";
 import Reminder from "../../reminders/Reminder";
-import { ITask } from "../../tasks/TASK/ITask";
 import Task from "../../tasks/TASK/Task";
 import { ITaskList } from "./ITaskList";
-import TaskList from "./TaskList";
 
 
 
@@ -18,7 +16,7 @@ export const list_schema = new Schema(
             required:[true, "The lists´s title is needed"]
         },
         tasks:[{
-            type:Schema.Types.ObjectId,
+            type:String,
             ref:"Task",
             validate:{
                 validator:
@@ -34,7 +32,7 @@ export const list_schema = new Schema(
             default: moment().toDate()
         },
         createdBy:{
-            type:Schema.Types.ObjectId,
+            type:String,
             ref:"User",
             required:true
         }   

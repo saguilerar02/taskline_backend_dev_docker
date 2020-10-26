@@ -8,6 +8,7 @@ import { ITask } from "./ITask";
 
 
 const REMINDERS = 5;
+const CONTRIBUTORS = 10;
 
 export const task_schema = new Schema(
     {
@@ -32,11 +33,11 @@ export const task_schema = new Schema(
             required:true
         },
         idTasklist:{
-            type:Schema.Types.ObjectId,
+            type:String,
             ref:"TaskList"
         },
         createdBy:{
-            type:Schema.Types.ObjectId,
+            type:String,
             ref:"User",
             required:true
         },
@@ -47,17 +48,20 @@ export const task_schema = new Schema(
             default:"PENDING"
         },
         reminders:{
-            type:[Schema.Types.ObjectId],
+            type:[String],
             ref:"Reminder",
-            required:true
+            required:true,
+            
         },
         contributors:{
-            type:[Schema.Types.ObjectId],
+            type:[String],
             ref:"User",
             required:true
         }
     },options
 );
+
+task_schema.index({archivementDateTime: 1, createdBy: 1,  },{unique: true, backgorund:true});
 
 task_schema.pre<ITask>("save",async function (next) {
     
@@ -101,15 +105,16 @@ task_schema.pre<ITask>("remove",async function (next) {
 
 task_schema.pre<ITask>("validate",function(next){
 
-    if(this.reminders.length>=0 && this.reminders.length<=REMINDERS){
-        if(moment(this.createdAt).diff(this.archivementDateTime, "minutes")>-120){
-            throw new Error("La fecha de finalización debe ser como mínimo de 2 horas en el futuro");
-        }else{
-            next();
-        }
-    }else{
+    if(this.contributors.length<0 || this.contributors.length>CONTRIBUTORS){
+        throw new Error("Solo puedes compartir la tarea con 10 personas");
+    }
+    if(this.reminders.length<0 || this.reminders.length>REMINDERS){
         throw new Error("Solo puedes asignar 5 reminders a la misma tarea, solo puedes añadir "+(REMINDERS-this.reminders.length)+" más");
-        
+    }
+    if(moment(this.createdAt).diff(this.archivementDateTime, "minutes")>-120){
+        throw new Error("La fecha de finalización debe ser como mínimo de 2 horas en el futuro");
+    }else{
+        next();
     }
     
 })

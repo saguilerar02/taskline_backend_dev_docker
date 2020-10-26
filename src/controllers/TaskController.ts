@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { responseErrorMaker } from "../Handlers/ErrorHandler";
-import { ITask } from "../models/tasks/TASK/ITask";
+import { ITask } from '../models/tasks/TASK/ITask';
 import Task from "../models/tasks/TASK/Task";
 
 
@@ -55,17 +55,19 @@ export const deleteOneTask = async function (request: Request, res: Response) {
 };
 
 
-export const updateTask = async function (request: Request, res: Response) {
+export const updateTask = async function (req: Request, res: Response) {
 
-    if (request.body && Object.keys(request.body).length > 0 && request.params["id"]) {
+    if (req.body && Object.keys(req.body).length > 0 && req.params["id"]) {
         try {
 
-            let t = await Task.updateOne({ _id: request.params["id"] }, request.body, { runValidators: true });
-
-            if (t) {
-                res.status(201).send({ msg: "Task save success" });
-            } else {
-                res.status(404).send({ msg: "Task not found" });
+            let t = await Task.findById(req.params["id"]);
+            if(t){
+               let updated = await t.updateOne(req.body,{runValidators:true});
+                if (updated) {
+                    res.status(201).send({msg: "La tarea se ha actualizado con éxito" });
+                } else {
+                    res.status(404).send({ msg: "Task not found" });
+                }
             }
         } catch (err) {
             if (err.name === "ValidationError") {
@@ -80,28 +82,29 @@ export const updateTask = async function (request: Request, res: Response) {
     }
 }
 
-/*
 export const showTimeLine = async function (req: Request, res: Response) {
 
     try {
-        let tasks:ITask[]|null;
-        console.log(req.params['lastTask']);
-            console.log(req.params['user']);
-        if (!req.params['lastTask']) {
-
-            tasks = await Task.find(t)
-                .sort({ archivementDate: -1, _id: -1 })
+        if (req.params && req.params['user']) {
+            let tasks:ITask[]|null;
+            if(req.params['last']){
+                tasks = await Task.find({ "createdBy": req.params['user'], "_id": { $lt: req.params['last'] }, "status":"PENDING"  })
+                .sort({ archivementDateTime: -1, _id: -1 })
                 .limit(7);
-        } else {
-            tasks = await Task.find(new Task({ createdBy: new Schema.Types.ObjectId(req.params['user']), _id: { $lt: req.params['lastTask'] }, status:"PENDING"  }))
-                .sort({ archivementDate: -1, _id: -1 })
+            }else {
+                console.log('Hola');
+                tasks = await Task.find({ "createdBy": req.params['user'] })
+                .sort({ archivementDateTime: -1, _id: -1 })
                 .limit(7);
-        }
-
-        if (tasks && tasks.length > 0) {
-            res.status(201).send({ timeline: tasks });
-        } else {
-            res.status(404).send({ msg: "Empty timeline" });
+            }
+            if (tasks && tasks.length > 0) {
+                res.status(201).send({ timeline: tasks });
+            } else {
+                res.status(404).send({ msg: "Empty timeline" });
+            }
+        
+        } else{
+            res.status(500).send({ error: "Los parametros no son los correctos" });
         }
     } catch (err) {
 
@@ -109,4 +112,3 @@ export const showTimeLine = async function (req: Request, res: Response) {
         console.error(err);
     }
 }
-*/

@@ -6,6 +6,6 @@ export interface IReminder extends Document{
     remindAt: Date,
     reminderData:any
     status: EnumType
-    idTask:Schema.Types.ObjectId
+    idTask:String
     createdAt:Date
 }

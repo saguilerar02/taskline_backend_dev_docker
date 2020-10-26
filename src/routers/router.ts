@@ -1,12 +1,13 @@
-import {Router} from 'express'
-import { deleteOneReminder, saveReminder, updateReminder } from '../controllers/ReminderController';
-import { deleteOneTask, saveTask, updateTask } from '../controllers/TaskController';
-import { deleteOneTaskList, saveTaskList, updateTaskList } from '../controllers/TaskListsController';
+import { Router } from 'express';
+import { deleteOneReminder, saveReminder } from '../controllers/ReminderController';
+import { deleteOneTask, saveTask, showTimeLine, updateTask } from '../controllers/TaskController';
+import { deleteOneTaskList, getUserLists, saveTaskList, updateTaskList } from '../controllers/TaskListsController';
 import { signIn, signUp } from '../controllers/UserController';
 
 
 const router = Router();
 
+//TASK
 
 router.post("/task/create", saveTask);
 
@@ -14,19 +15,24 @@ router.put("/task/update/:id", updateTask);
 
 router.delete("/task/delete/:id", deleteOneTask);
 
+router.get("/timeline/:user/:last?",showTimeLine);
+router.get("/lists/:user",getUserLists);
+
+
+//LISTS
 router.post("/list/create", saveTaskList);
 
 router.put("/list/update/:id", updateTaskList);
 
 router.delete("/list/delete/:id", deleteOneTaskList);
 
+//REMINDER
 router.post("/reminder/create", saveReminder);
 
-router.put("/reminder/update/:id", updateReminder);
 
 router.delete("/reminder/delete/:id", deleteOneReminder);
 
-//router.get("/timeline/:user/:lastTask",showTimeLine);
+//USER
 
 router.post("/signup",signUp);
 router.post("/signin",signIn);

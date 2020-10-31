@@ -20,7 +20,7 @@ export const signUp= async function(req:Request, res:Response) {
             res.status(response.status).send({error:response.data})
         }
     }else{
-        res.status(500).send({msg: 'Empty Request'});
+        res.status(500).send({msg: 'La petición no es válida'});
     }
 }
 
@@ -32,30 +32,26 @@ export const signIn =async function (req:Request, res:Response) {
             if(user){
                 const pass = await bcrypt.compare(req.body.password,user.password.toString());
                 if(pass){
-                    let token = await jsonwetoken.sign({user:user.id},'fasdfdsf',{
+                   
+                    let token = await jsonwetoken.sign({user:user.id},process.env.PRIVATE_KEY as string,{
                         issuer:'taskline',
                         audience:'https://beermaginary.com',
-                        expiresIn: 240
-                    });
-                    let rt = await jsonwetoken.sign({user:user.id},'fasdfdsf',{
-                        issuer:'taskline',
-                        audience:'https://beermaginary.com',
-                        expiresIn: '1d'
+                        algorithm:"RS256",
+                        expiresIn: "3h"
                     });
                     console.log('SignedIn successfully');
-                    res.status(401).send({token:token, refresh_token:rt, user:user});
+                    res.status(401).send({token:token});
                 }else{
-                    res.status(500).send({msg:'Email and password not corresponding'});
+                    res.status(500).send({msg:'El email y la contraseña no corresponden'});
                 }
             }else{
-                res.status(500).send({msg:'This users dont exists'});
-                
+                res.status(500).send({msg:'El email y la contraseña no corresponden'});
             }
         }else{
-            res.status(500).send({msg:'Email and password are needed'});
+            res.status(500).send({msg:'El email y la contraseña son necesarios para hacer login'});
         }
     }catch(err){
-        res.status(500).send({msg:'Something went wrong'});
+        res.status(500).send({msg:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
     }
 }
 
@@ -82,20 +78,19 @@ export const resetUserPassword= async function (req:Request, res:Response) {
                     res.status(500).send({error:'Token inválido'});
                 }
             }else{
-                res.status(500).send({error:'This users dont exists'});
+                res.status(500).send({error:'No se ha encontrado al usuario'});
             }
         }else{
-            res.status(404).send({error:'Bad Reques'});
+            res.status(404).send({error:'No tiene permiso para acceder a este enlace'});
         }
     }catch(err){
-        console.log(err);
-        res.status(500).send({msg:'Something went wrong'});
+        res.status(500).send({msg:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
     }
 }
 
 export const sendMailResetPassword= async function (req:Request, res:Response) {
     try{
-        if(req.params){
+        if(req.body.email){
             let user = await User.findOne({email:req.body.email});
             if(user){
                 let token = await jsonwetoken.sign({user:user.id},(user.password+user.createdAt.toDateString()),{
@@ -113,6 +108,7 @@ export const sendMailResetPassword= async function (req:Request, res:Response) {
         }
     }catch(err){
         //console.log(err);
-        res.status(500).send({msg:'Something went wrong'});
+        res.status(500).send({msg:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
+
     }
 }

@@ -41,7 +41,7 @@ export async function sendResetPasswordEmail(user:IUser,token:string) {
         from: process.env.MAILERACCOUNT,
         to:user.email as string,
         subject: "#RESET PASSWORD:Vamos a resetear tu password ", // Subject line
-        html:'<a href="/resetpassword/' + user.id + '/' + token + '">Reset password</a>',
+        html:'<a href="http://localhost:4200/resetpassword/' + user.id + '/' + token + '">Reset password</a>',
       });
      return info;
   }catch(err){

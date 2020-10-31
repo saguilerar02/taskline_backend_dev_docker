@@ -1,18 +1,20 @@
-import express from 'express'
 import cors from 'cors';
-import router from './routers/router'
+import express from 'express';
+import authRouter from './routers/authRouter';
+import publicRouter from './routers/publicRouter';
 
 const app = express();
 
 // settings
-app.set('port', process.env.PORT || 3000);
+
 
 // middlewares
 
 app.use(cors());
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
-app.use('/api',router);
+app.use('/public',publicRouter);
+app.use('/auth',authRouter);
 
 
 app.get('/', (req, res) => {

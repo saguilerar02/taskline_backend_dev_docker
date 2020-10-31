@@ -1,14 +1,13 @@
 import { CronJob } from 'cron';
 import moment from 'moment';
-
 import Reminder from '../models/reminders/Reminder';
-import { createTransporter, sendReminderEmail } from './Mailer';
+import { sendReminderEmail } from './Mailer';
+
 
 
 
 export const job = new CronJob('0 * * * * *', async function() {
     try{
-        let transporter = createTransporter()
         let reminders:any[]|null = await Reminder
                                         .find({"remindAt":{$lte:moment().add(30,'minutes').toDate()},"reminded":false})
                                         .populate({

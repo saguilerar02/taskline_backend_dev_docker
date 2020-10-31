@@ -50,14 +50,9 @@ export let user_schema = new Schema({
     active:{
       type:Boolean,
       default:true
+    },
+    createdAt:{
+      type:Date,
+      default:moment().toDate()
     }
 }); 
-
-
-user_schema.pre<IUser>("save", async function(next) {
-
-  if (this.isNew){
-    this.password =await bcrypt.hash(this.password, 10);
-  }
-    next();
-});

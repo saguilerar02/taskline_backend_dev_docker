@@ -1,11 +1,11 @@
-import { EnumType } from "typescript";
-import {Document, Schema} from "mongoose"
+import { Document } from "mongoose";
 
 export interface IReminder extends Document{
 
     remindAt: Date,
-    reminderData:any
-    status: EnumType
+    reminderData:String
+    reminded: Boolean
     idTask:String
     createdAt:Date
+    createdBy:String
 }

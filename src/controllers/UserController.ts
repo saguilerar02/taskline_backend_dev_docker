@@ -1,37 +1,23 @@
 import bcrypt from 'bcrypt'
 import { Request, Response } from 'express'
 import jsonwetoken from 'jsonwebtoken'
+import { responseUserErrorMaker } from '../Handlers/ErrorHandler'
 import User from '../models/USER/User'
+import { encriptarPassword } from '../services/Bcrypter'
+import { sendResetPasswordEmail } from '../services/Mailer'
 
 export const signUp= async function(req:Request, res:Response) {
 
     if( req.body && Object.keys(req.body).length>0){
         try{
-            await User.create(req.body);
-            res.status(401).send({msg:'User signed up successfully'});
+            let user = new User(req.body);
+            user.password = await encriptarPassword(req.body.password);
+            await user.save();
+            res.status(401).send({msg:'Usuario registrado con exito'});
 
         }catch(err){
-            switch(err.constructor.name){
-                case 'MongoError':{
-                    let message ="Something went wrong";
-                    if(err.code === 11000 && err.keyPattern.email === 1){
-                        message='Email duplicated';
-                    }else if(err.code === 11000 && err.keyPattern.username===1){
-                        message='Username duplicated';
-                    }
-                    res.status(422).send({message});
-                }break;
-                case 'ValidationError':{
-                    let form_errors:any = {};
-                    Object.keys(err.errors).forEach((key) => {
-                        form_errors[key]=err.errors[key].message;
-                    });
-                    res.status(500).send({errors:form_errors});
-                }break;
-                default:{
-                    res.status(500).send({msg: 'Something went wrong, retry again'});
-                }break;
-            }
+            let response = responseUserErrorMaker(err);
+            res.status(response.status).send({error:response.data})
         }
     }else{
         res.status(500).send({msg: 'Empty Request'});
@@ -64,6 +50,63 @@ export const signIn =async function (req:Request, res:Response) {
             }else{
                 res.status(500).send({msg:'This users dont exists'});
                 
+            }
+        }else{
+            res.status(500).send({msg:'Email and password are needed'});
+        }
+    }catch(err){
+        res.status(500).send({msg:'Something went wrong'});
+    }
+}
+
+export const resetUserPassword= async function (req:Request, res:Response) {
+    try{
+        if(req.params && req.params['user']&& req.params['token'] && req.body && req.body.pass1 && req.body.pass2){
+            let user = await User.findById(req.params['user']);
+            if(user){
+                let key = user.password+user.createdAt.toDateString();
+                let token = jsonwetoken.verify(req.params['token'],key,
+                { 
+                    issuer:'taskline',
+                    audience:'https://beermaginary.com'
+                });
+                if(token){
+                    if(req.body.pass1.length>0 && req.body.pass1.length>0 && req.body.pass1 === req.body.pass2){
+                        user.password=await encriptarPassword(req.body.pass1);
+                        await user.save();
+                        res.status(200).send({msg:'La contraseña ha sido cambiada con éxito'});
+                    }else{
+                        res.status(500).send({msg:'Las contraseñas no coinciden'});
+                    }
+                }else{
+                    res.status(500).send({error:'Token inválido'});
+                }
+            }else{
+                res.status(500).send({error:'This users dont exists'});
+            }
+        }else{
+            res.status(404).send({error:'Bad Reques'});
+        }
+    }catch(err){
+        console.log(err);
+        res.status(500).send({msg:'Something went wrong'});
+    }
+}
+
+export const sendMailResetPassword= async function (req:Request, res:Response) {
+    try{
+        if(req.params){
+            let user = await User.findOne({email:req.body.email});
+            if(user){
+                let token = await jsonwetoken.sign({user:user.id},(user.password+user.createdAt.toDateString()),{
+                    issuer:'taskline',
+                    audience:'https://beermaginary.com',
+                    expiresIn: '1h'
+                });
+                await sendResetPasswordEmail(user,token);
+                res.status(500).send({msg:'Email de reseteo de password enviado'});
+            }else{
+                res.status(500).send({msg:'This users dont exists'});
             }
         }else{
             res.status(500).send({msg:'Email and password are needed'});

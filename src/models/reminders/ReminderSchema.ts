@@ -1,6 +1,5 @@
 import moment from "moment";
 import { Schema } from "mongoose";
-import { ITask } from "../tasks/TASK/ITask";
 import Task from "../tasks/TASK/Task";
 import { IReminder } from "./IReminder";
 
@@ -15,15 +14,25 @@ export const reminder_schema = new Schema(
             required:[true, "The reminder date is needed"]
         },
         reminderData:{
-            type:Schema.Types.Mixed
+            type:String,
+            minlength:10,
+            maxlength:255,
+            trim:true,
+            required:true
         },
         reminded:{
             type:Boolean,
             default:false
         },
         idTask:{
-            type:Schema.Types.ObjectId,
-            required:true
+            type:String,
+            required:true,
+            ref:"Task"
+        },
+        createdBy:{
+            type:String,
+            required:true,
+            ref:'User'
         }
     }
 );

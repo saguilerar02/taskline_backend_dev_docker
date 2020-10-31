@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { deleteOneReminder, saveReminder } from '../controllers/ReminderController';
 import { deleteOneTask, saveTask, showTimeLine, updateTask } from '../controllers/TaskController';
 import { deleteOneTaskList, getUserLists, saveTaskList, updateTaskList } from '../controllers/TaskListsController';
-import { signIn, signUp } from '../controllers/UserController';
+import { resetUserPassword, sendMailResetPassword, signIn, signUp } from '../controllers/UserController';
 
 
 const router = Router();
@@ -36,5 +36,8 @@ router.delete("/reminder/delete/:id", deleteOneReminder);
 
 router.post("/signup",signUp);
 router.post("/signin",signIn);
+router.post("/resetpassword",sendMailResetPassword);
+router.post("/resetpassword/:user/:token",resetUserPassword);
 
 export default router;
+

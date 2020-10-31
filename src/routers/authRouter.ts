@@ -15,15 +15,13 @@ authRouter.use(async function (req, res, next) {
                 issuer:'taskline',
                 audience:'https://beermaginary.com'
             });
-            if(!verified)res.sendStatus(403);
+            if(!verified)res.status(403).send("Bad token");
             next();
         }else{
-            return res.status(401);
+            return res.status(401).send("Bad token");
         }
     }catch(err){
-        console.log(process.env.PUBLIC_KEY );
-        console.log(err);
-        return res.status(500);
+        return res.status(500).send("Bad token");
     }
   });
 

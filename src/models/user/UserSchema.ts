@@ -1,7 +1,5 @@
 import moment from "moment";
 import { Schema } from "mongoose";
-import { IUser } from "./IUser";
-import bcrypt from 'bcrypt'
 
 export let user_schema = new Schema({
 
@@ -54,5 +52,10 @@ export let user_schema = new Schema({
     createdAt:{
       type:Date,
       default:moment().toDate()
+    },
+    profileImage:{
+      type:String,
+      trim:true
     }
+
 }); 

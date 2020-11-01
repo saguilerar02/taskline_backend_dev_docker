@@ -1,5 +1,5 @@
-import { Request, Response } from 'express'
-import { responseErrorMaker } from "../Handlers/ErrorHandler";
+import { Request, Response } from 'express';
+import { responseErrorMaker } from "../handlers/ErrorHandler";
 import Reminder from '../models/reminders/Reminder';
 
 
@@ -22,7 +22,7 @@ export const saveReminder = async function (request: Request, res: Response) {
             }
         }
     } else {
-        res.status(404).send("El cuerpo de la petición esta vacío o es nulo");
+        res.status(400).send("Bad Request: La peticion está inválida");
     }
 };
 
@@ -30,7 +30,7 @@ export const deleteOneReminder = async function (request: Request, res: Response
 
     if (request.params["id"] && request.params["id"].length > 0) {
         try {
-            let t = await Reminder.findById(request.params["id"]);
+            let t = await Reminder.findOne({_id:request.params["id"],createdBy:request.body.createdBy});
             if (t) {
                 let deleted = await t.remove();
                 if (deleted) {
@@ -45,7 +45,7 @@ export const deleteOneReminder = async function (request: Request, res: Response
             res.status(500).send({ msg: "Algo ha fallado, intentelo de nuevo más tarde" });
         }
     } else {
-        res.status(404).send({ msg: "La ID no ha sido especificada" })
+        res.status(400).send("Bad Request: La peticion está inválida");
     }
 };
 

@@ -10,4 +10,5 @@ export interface IUser extends Document{
     birth_day:Date
     active:Boolean
     createdAt:Date
+    profileImage:String
 }

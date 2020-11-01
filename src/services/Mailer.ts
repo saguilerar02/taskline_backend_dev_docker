@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
-import { IUser } from '../models/USER/IUser';
+import { IUser } from '../models/user/IUser';
 
 
 let mailer:Mail;

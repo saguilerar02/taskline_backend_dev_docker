@@ -88,12 +88,15 @@ task_schema.pre<ITask>("remove",async function (next) {
     if(this.idTasklist){
         let tl = await TaskList.findOneAndUpdate({"_id":this.idTasklist},{ '$pull': { 'tasks': this._id } })
         if(tl){
-            let deleted = await Reminder.deleteMany({ _id: { $in: this.reminders } });
-            if(deleted && deleted.deletedCount && deleted.deletedCount>0){
-                next()
-            }else{
-                throw new Error("No se ha podido borrar los reminders");
+            if(this.reminders && this.reminders.length>0){
+                let deleted = await Reminder.deleteMany({ _id: { $in: this.reminders } });
+                if(deleted && deleted.deletedCount && deleted.deletedCount>0){
+                    next()
+                }else{
+                    throw new Error("No se ha podido borrar los reminders");
+                }
             }
+            next();
         }else{
             throw new Error("TaskList not found");     
         }

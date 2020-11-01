@@ -30,7 +30,7 @@ function(err: any){
             return {status:500,data:form_errors}
         }break;
         default:{
-            return {status:500,data: 'Something went wrong, retry again'}
+            return {status:500,data: 'Ha habido un error inesperado, por favor intentelo de nuevo más tarde'}
         }break;
     }
 }

@@ -8,7 +8,7 @@ const app = express();
 // settings
 
 app.use(cors());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use('/public',publicRouter);
 app.use('/auth',authRouter);

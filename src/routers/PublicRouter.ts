@@ -4,7 +4,7 @@ import { uploadImageProfileImage } from "../services/MulterConfig";
 
 const publicRouter = Router();
 
-publicRouter.post("/signup",uploadImageProfileImage.single('profileImage'),signUp);
+publicRouter.post("/signup",signUp);
 publicRouter.post("/signin",signIn);
 publicRouter.post("/resetpassword",sendMailResetPassword);
 publicRouter.post("/resetpassword/:user/:token",resetUserPassword);

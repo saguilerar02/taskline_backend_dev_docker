@@ -1,14 +1,13 @@
-import { Router } from "express";
-import jsonwebtoken from 'jsonwebtoken'
-import { saveReminder, deleteOneReminder } from "../controllers/ReminderController";
-import { saveTask, updateTask, deleteOneTask, showTimeLine } from "../controllers/TaskController";
-import { getUserLists, saveTaskList, updateTaskList, deleteOneTaskList } from "../controllers/TaskListsController";
-import { getUserProfile, updateUser } from "../controllers/UserController";
+import { NextFunction, Request, Response, Router } from "express";
+import jsonwebtoken from 'jsonwebtoken';
+import { deleteOneReminder, saveReminder } from "../controllers/ReminderController";
+import { deleteOneTask, saveTask, showTimeLine, updateTask } from "../controllers/TaskController";
+import { deleteOneTaskList, getUserLists, saveTaskList, updateTaskList } from "../controllers/TaskListsController";
+import { changeProfileImage, getUserProfile } from "../controllers/UserController";
 import { uploadImageProfileImage } from "../services/MulterConfig";
-import {Request,Response, NextFunction} from 'express'
 const authRouter = Router();
 
-const jwt = async function (req:Request, res:Response, next:NextFunction) {
+authRouter.use(async function (req:Request, res:Response, next) {
     try{
         let header = req.headers["authorization"];
         let token =header && header.split(" ")[1];
@@ -27,35 +26,35 @@ const jwt = async function (req:Request, res:Response, next:NextFunction) {
     }catch(err){
         next(new Error("BAD TOKEN"));
     }
-  };
+  });
 
-authRouter.post("/task/create",jwt, saveTask);
+authRouter.post("/task/create", saveTask);
 
-authRouter.put("/task/update/:id",jwt, updateTask);
+authRouter.put("/task/update/:id", updateTask);
 
-authRouter.delete("/task/delete/:id",jwt, deleteOneTask);
+authRouter.delete("/task/delete/:id", deleteOneTask);
 
-authRouter.get("/timeline/:last?",jwt,showTimeLine);
+authRouter.get("/timeline/:last?",showTimeLine);
 
 
 //LISTS
-authRouter.post("/list/create",jwt, saveTaskList);
+authRouter.post("/list/create", saveTaskList);
 
-authRouter.put("/list/update/:id",jwt, updateTaskList);
+authRouter.put("/list/update/:id", updateTaskList);
 
-authRouter.delete("/list/delete/:id",jwt, deleteOneTaskList);
+authRouter.delete("/list/delete/:id", deleteOneTaskList);
 
-authRouter.get("/lists",jwt,getUserLists);
+authRouter.get("/lists",getUserLists);
 
 //REMINDER
-authRouter.post("/reminder/create",jwt, saveReminder);
+authRouter.post("/reminder/create", saveReminder);
 
 
-authRouter.delete("/reminder/delete/:id",jwt, deleteOneReminder);
+authRouter.delete("/reminder/delete/:id", deleteOneReminder);
 
 //USER
 
-authRouter.get("/profile",jwt, getUserProfile)
-authRouter.put("/profile",jwt, uploadImageProfileImage.single('profileImage'))
+authRouter.get("/profile", getUserProfile);
+authRouter.put("/upload", uploadImageProfileImage,changeProfileImage);
 
 export default authRouter;

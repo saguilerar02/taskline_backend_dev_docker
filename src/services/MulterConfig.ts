@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         if( file && path.extname(file.originalname)){
-            cb(null, uuidv4.toString()+path.extname(file.originalname));
+            cb(null, req.user.toString()+path.extname(file.originalname));
         }
     }   
   })
@@ -33,5 +33,5 @@ export const uploadImageProfileImage = multer({
             cb(new Error("Error: Ha ocurrido un error al cargar el archivo"));
         }
     }
-});
+}).single('profileImage');
 

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 //IMAGES
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -11,7 +12,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         if( file && path.extname(file.originalname)){
-            cb(null, 'profile-image-' + req.body.username+path.extname(file.originalname));
+            cb(null, uuidv4.toString()+path.extname(file.originalname));
         }
     }   
   })
@@ -23,10 +24,7 @@ export const uploadImageProfileImage = multer({
     fileFilter:(req,file,cb)=>{
         try{
             const filetypes = /jpeg|jpg|png|webp|gif/
-            console.log(file.mimetype)
-            console.log(path.extname(file.originalname).substring(1))
             if(filetypes.test(file.mimetype) && filetypes.test(path.extname(file.originalname).substring(1))){
-                console.log(req.body.createdBy)
                 cb(null,true);
             }else{
                 cb(new Error("Error: Imagen inválida"));
@@ -34,9 +32,6 @@ export const uploadImageProfileImage = multer({
         }catch(err){
             cb(new Error("Error: Ha ocurrido un error al cargar el archivo"));
         }
-        
-        
     }
-    
 });
 

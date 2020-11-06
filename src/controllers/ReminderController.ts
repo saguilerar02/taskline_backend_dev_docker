@@ -30,7 +30,7 @@ export const deleteOneReminder = async function (request: Request, res: Response
 
     if (request.params["id"] && request.params["id"].length > 0) {
         try {
-            let t = await Reminder.findOne({_id:request.params["id"],createdBy:request.body.createdBy});
+            let t = await Reminder.findOne({_id:request.params["id"],createdBy:request.user});
             if (t) {
                 let deleted = await t.remove();
                 if (deleted) {

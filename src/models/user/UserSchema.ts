@@ -55,7 +55,8 @@ export let user_schema = new Schema({
     },
     profileImage:{
       type:String,
-      trim:true
+      trim:true,
+      default:process.env.DEFAULT_USER_IMAGE
     }
 
 }); 

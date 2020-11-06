@@ -19,8 +19,7 @@ const jwt = async function (req:Request, res:Response, next:NextFunction) {
                 audience:'https://beermaginary.com'
             }) as any;
             if(!verified)res.status(403).send("Bad token");
-            req.body.createdBy = verified.user
-            console.log(req.body.createdBy )
+            req.user = verified.user
             next();
         }else{
             next(new Error("BAD TOKEN"));
@@ -57,6 +56,6 @@ authRouter.delete("/reminder/delete/:id",jwt, deleteOneReminder);
 //USER
 
 authRouter.get("/profile",jwt, getUserProfile)
-authRouter.put("/profile",uploadImageProfileImage.single('imageProfile'),jwt, updateUser)
+authRouter.put("/profile",jwt, uploadImageProfileImage.single('profileImage'))
 
 export default authRouter;

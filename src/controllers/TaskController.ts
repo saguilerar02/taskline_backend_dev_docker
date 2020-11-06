@@ -33,7 +33,7 @@ export const deleteOneTask = async function (req: Request, res: Response) {
     if (req.params["id"] && req.params["id"].length > 0) {
         try {
 
-            let t = await Task.findOne({_id:req.params["id"],createdBy:req.body.createdBy});
+            let t = await Task.findOne({_id:req.params["id"],createdBy:req.user});
             if (t) {
                 if ( await t.remove()) {
                     res.status(201).send({ msg: "La Task ha sido borrada con éxito" });
@@ -57,7 +57,7 @@ export const updateTask = async function (req: Request, res: Response) {
     if (req.body && Object.keys(req.body).length > 0 && req.params["id"]) {
         try {
 
-            let t = await Task.findOne({_id:req.params["id"],createdBy:req.body.createdBy});
+            let t = await Task.findOne({_id:req.params["id"],createdBy:req.user});
             if(t){
                let updated = await t.updateOne(req.body,{runValidators:true});
                 if (updated && updated.nModified>0) {
@@ -87,12 +87,12 @@ export const showTimeLine = async function (req: Request, res: Response) {
             try {
                 let tasks:ITask[]|null;
                 if(req.params['last']){
-                    tasks = await Task.find({ "createdBy": req.body.createdBy, "_id": { $lt: req.params['last'] }, "status":"PENDING"  })
+                    tasks = await Task.find({ "createdBy": req.user, "_id": { $lt: req.params['last'] }, "status":"PENDING"  })
                     .sort({ archivementDateTime: -1, _id: -1 })
                     .limit(7);
                 }else {
                     console.log('Hola');
-                    tasks = await Task.find({ "createdBy": req.body.createdBy })
+                    tasks = await Task.find({ "createdBy": req.user })
                     .sort({ archivementDateTime: -1, _id: -1 })
                     .limit(7);
                 }

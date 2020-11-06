@@ -11,23 +11,16 @@ export const signUp= async function(req:Request, res:Response) {
 
     if( req.body && Object.keys(req.body).length>0){
         try{
-
-            if(req.file && req.file.filename){
-                req.body.profileImage = req.file.filename
-            }
-            req.body.profileImage = null
             let user = new User(req.body);
             user.password = await encriptarPassword(req.body.password);
             let saved = await user.save();
             if(saved){
                 res.status(201).send({msg:'Usuario registrado con exito'});
             }else{
-                if(req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path)
                 res.status(401).send({msg:'Ha ocurrido un error al registrar el usuario'});
             }
         }catch(err){
             console.log(err);
-            if( req.file && fs.existsSync(req.file.path))await fs.unlinkSync(req.file.path)
             let response = responseUserErrorMaker(err);
             res.status(response.status).send({error:response.data})
         }
@@ -133,17 +126,13 @@ export const updateUser= async function(req:Request, res:Response) {
 
     if( req.body){
         try{
-            console.log(req.body.createdBy)
-            let user = await User.findOne({_id:req.body.createdBy});
+            console.log(req.user)
+            let user = await User.findOne({_id:req.user});
             if(user){
-                if(req.file && req.file.filename){
-                    req.body.profileImage = req.file.filename
-                }
                 let updated:any = await user.updateOne(req.body,{runValidators:true});
                 if (updated && updated.nModified>0) {
                     res.status(201).send({msg: "El perfil de usuario se ha actualizado con éxito" });
                 } else {
-                    console.log(updated)
                     res.status(500).send({ msg: "Ha ocurrido un error inesperado, no se pudo actualizar el perfil de Usuario" });
                 }
             }else{
@@ -161,9 +150,9 @@ export const updateUser= async function(req:Request, res:Response) {
 
 export const getUserProfile= async function(req:Request, res:Response) {
 
-    if( req.body.createdBy){
+    if( req.user){
         try{
-            let user =await User.findOne({_id:req.body.createdBy});
+            let user =await User.findOne({_id:req.user});
             if(user){
                 res.status(200).send({user:user});
             }else{
@@ -176,4 +165,31 @@ export const getUserProfile= async function(req:Request, res:Response) {
     }else{
         res.status(500).send({msg: 'La petición no es válida'});
     }
+}
+
+export const changeProfileImage = async function (req:Request, res:Response) {
+    if( req.user && req.file){
+        try{
+            let user =await User.findOne({_id:req.user});
+            if(user){
+                let updated = await user.updateOne({profileImage: req.file.filename});
+                if (updated && updated.nModified && updated.nModified>0) {
+                    res.status(200).send({msg:"Foto de perfil actualizada"});
+                }else{
+                    if(fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                    res.status(500).send({ msg: "Ha ocurrido un error inesperado, no se pudo actualizar la foto de perfil" });
+                }
+            }else{
+                if(fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                res.status(404).send({error:"El usuario especificado no se encontró"});
+            }
+        }catch(err){
+            let response = responseUserErrorMaker(err);
+            if(fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+            res.status(response.status).send({error:response.data})
+        }
+    }else{
+        res.status(500).send({msg: 'La petición no es válida'});
+    }
+    
 }

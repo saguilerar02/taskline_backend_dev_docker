@@ -3,9 +3,6 @@ import moment from 'moment';
 import Reminder from '../models/reminders/Reminder';
 import { sendReminderEmail } from './Mailer';
 
-
-
-
 export const job = new CronJob('0 * * * * *', async function() {
     try{
         let reminders:any[]|null = await Reminder

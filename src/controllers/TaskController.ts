@@ -9,6 +9,7 @@ export const saveTask = async function (req: Request, res: Response) {
     if (req.body && Object.keys(req.body).length > 0) {
         try {
             if (req.body.reminders.length > 5) return res.status(500).send({ error: "Máximo 5 reminders por Task" })
+                req.body.createdBy = req.user;
                 let t = new Task(req.body);
                 
                 if (await t.save()) {
@@ -87,7 +88,7 @@ export const showTimeLine = async function (req: Request, res: Response) {
             try {
                 let tasks:ITask[]|null;
                 if(req.params['last']){
-                    tasks = await Task.find({ "createdBy": req.user, "_id": { $lt: req.params['last'] }, "status":"PENDING"  })
+                    tasks = await Task.find({ createdBy: req.user, _id: { $lt: req.params['last'] }, "status":"PENDING", contributors:req.user })
                     .sort({ archivementDateTime: -1, _id: -1 })
                     .limit(7);
                 }else {

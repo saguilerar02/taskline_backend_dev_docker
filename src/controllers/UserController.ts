@@ -15,18 +15,16 @@ export const signUp= async function(req:Request, res:Response) {
             user.password = await encriptarPassword(req.body.password);
             let saved = await user.save();
             if(saved){
-                res.status(201).send({msg:'Usuario registrado con exito'});
+                res.status(201).send({type:'SUCCESS', msg:'Usuario registrado con exito'});
             }else{
-                res.status(401).send({msg:'Ha ocurrido un error al registrar el usuario'});
+                res.status(401).send({type:'ERROR', error:'Ha ocurrido un error al registrar el usuario'});
             }
         }catch(err){
-            console.log(err);
             let response = responseUserErrorMaker(err);
-            res.status(response.status).send({error:response.data})
+            res.status(response.status).send({type:response.error.type, error:response.error.error});
         }
     }else{
-        console.log(req.body)
-        res.status(400).send("Bad Request: petición inválida");
+        res.status(400).send({type:'ERROR', error:"Deber rellenar el formulario de registro"});
     }
 }
 
@@ -109,7 +107,7 @@ export const sendMailResetPassword= async function (req:Request, res:Response) {
                         expiresIn: '1h'
                     });
                     await sendResetPasswordEmail(user,token);
-                    res.status(500).send({msg:'Email de reseteo de password enviado'});
+                    res.status(200).send({msg:'Email de reseteo de password enviado'});
                 }else{
                     res.status(500).send({msg:'This users dont exists'});
                 }
@@ -141,7 +139,7 @@ export const updateUser= async function(req:Request, res:Response) {
 
         }catch(err){
             let response = responseUserErrorMaker(err);
-            res.status(response.status).send({error:response.data})
+            res.status(response.status).send({error:response.error})
         }
     }else{
         res.status(500).send({msg: 'La petición no es válida'});
@@ -160,7 +158,7 @@ export const getUserProfile= async function(req:Request, res:Response) {
             }
         }catch(err){
             let response = responseUserErrorMaker(err);
-            res.status(response.status).send({error:response.data})
+            res.status(response.status).send({error:response.error})
         }
     }else{
         res.status(500).send({msg: 'La petición no es válida'});
@@ -186,7 +184,7 @@ export const changeProfileImage = async function (req:Request, res:Response) {
         }catch(err){
             let response = responseUserErrorMaker(err);
             if(fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-            res.status(response.status).send({error:response.data})
+            res.status(response.status).send({error:response.error})
         }
     }else{
         res.status(500).send({msg: 'La petición no es válida'});

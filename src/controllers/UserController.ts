@@ -12,7 +12,6 @@ export const signUp= async function(req:Request, res:Response) {
     if( req.body && Object.keys(req.body).length>0){
         try{
             let user = new User(req.body);
-            user.password = await encriptarPassword(req.body.password);
             let saved = await user.save();
             if(saved){
                 res.status(201).send({type:'SUCCESS', msg:'Usuario registrado con exito'});
@@ -44,18 +43,18 @@ export const signIn =async function (req:Request, res:Response) {
                         expiresIn: "3h"
                     });
                     console.log('SignedIn successfully');
-                    res.status(401).send({token:token});
+                    res.status(200).send({type:'SUCCES',msg:'Ha iniciado sesión correctamente',token:token});
                 }else{
-                    res.status(500).send({msg:'El email y la contraseña no corresponden'});
+                    res.status(500).send({type:"BAD_CREDENTIALS", error:'El email y la contraseña no corresponden'});
                 }
             }else{
-                res.status(500).send({msg:'El email y la contraseña no corresponden'});
+                res.status(500).send({type:"BAD_CREDENTIALS", error:'El email y la contraseña no corresponden'});
             }
         }catch(err){
-            res.status(500).send({msg:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
+            res.status(500).send({type:"ERROR", error:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
         }
     }else{
-        res.status(400).send({msg:'El email y la contraseña son necesarios para hacer login'});
+        res.status(400).send({type:"ERROR", error:'El email y la contraseña son necesarios para hacer login'});
     }
 }
 

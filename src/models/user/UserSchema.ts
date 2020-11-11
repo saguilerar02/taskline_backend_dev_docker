@@ -1,5 +1,7 @@
 import moment from "moment";
 import { Schema } from "mongoose";
+import { encriptarPassword } from "../../services/Bcrypter";
+import { IUser } from "./IUser";
 
 export let user_schema = new Schema({
 
@@ -15,7 +17,7 @@ export let user_schema = new Schema({
     },
     username:{
         type:String,
-        match:[/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{3,29}$/,'Nombre de usuario invalido'],
+        match:[/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{3,29}$/,'Nombre de usuario inválido, debe tener una longitud de 3 a 29 caracteres'],
         unique:true,
         trim: true,
         index:true
@@ -23,7 +25,7 @@ export let user_schema = new Schema({
     password:{
       type: String,
       required:[true, 'La contraseña es imprescindible'],
-      minlength:[12,"La contraseña es demasiado corta"]
+      minlength:[12,"La contraseña es demasiado corta minimo 12 caracteres"]
     },
     name:{
       type:String,
@@ -59,3 +61,11 @@ export let user_schema = new Schema({
       default:process.env.DEFAULT_USER_IMAGE
     }
 }); 
+
+user_schema.pre<IUser>("save", async function(next) {
+
+  if (this.isNew){
+    this.password =await encriptarPassword(this.password.toString());
+  }
+    next();
+});

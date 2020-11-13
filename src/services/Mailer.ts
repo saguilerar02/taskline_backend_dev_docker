@@ -25,8 +25,7 @@ export async function sendReminderEmail(reminder:any) {
           to: reminder.idTask.contributors.map(
             (contributor:IUser,i:number,array:[])=>{return contributor.email+','}
           )+reminder.createdBy.email, 
-          subject: "#REMINDER:"+reminder.id+" -Recuerda que tienes algo por hacer", // Subject line
-          //text:"Hola que tal"
+          subject: "#REMINDER:"+reminder.id+" -Recuerda que tienes algo por hacer", 
           html: "<h2>"+reminder.reminderData+"</h2>",
         });
        return info;
@@ -40,8 +39,8 @@ export async function sendResetPasswordEmail(user:IUser,token:string) {
       let info = await mailer.sendMail({
         from: process.env.MAILERACCOUNT,
         to:user.email as string,
-        subject: "#RESET PASSWORD:Vamos a resetear tu password ", // Subject line
-        html:'<a href="http://localhost:4200/resetpassword/' + user.id + '/' + token + '">Reset password</a>',
+        subject: "#RESET PASSWORD:Vamos a resetear tu password ", 
+        html:'<a href="http://localhost:4200/reset_password/' + user.id + '/' + token + '">Reset password</a>',
       });
      return info;
   }catch(err){

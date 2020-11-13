@@ -4,7 +4,7 @@ import fs from 'fs'
 import jsonwetoken from 'jsonwebtoken'
 import { responseUserErrorMaker } from '../handlers/ErrorHandler'
 import User from '../models/user/User'
-import { encriptarPassword } from '../services/Bcrypter'
+import { comparePassword, encriptarPassword } from '../services/Bcrypter'
 import { sendResetPasswordEmail } from '../services/Mailer'
 
 export const signUp= async function(req:Request, res:Response) {
@@ -72,24 +72,29 @@ export const resetUserPassword= async function (req:Request, res:Response) {
                 });
                 if(token){
                     if(req.body.pass1.length>0 && req.body.pass1.length>0 && req.body.pass1 === req.body.pass2){
-                        user.password=await encriptarPassword(req.body.pass1);
-                        await user.save();
-                        res.status(200).send({msg:'La contraseña ha sido cambiada con éxito'});
+                        if(req.body.pass1 !== comparePassword(req.body.pass1,user.password.toString())){
+                            user.password=await encriptarPassword(req.body.pass1);
+                            await user.save();
+                            res.status(200).send({type:"SUCCESS",msg:'La contraseña ha sido cambiada con éxito'});
+                        }else{
+                            res.status(403).send({type:"BAD_CREDENTIALS",error:'Las contraseña no puede ser la misma de antes'});
+                        }
+                        
                     }else{
-                        res.status(403).send({msg:'Las contraseñas no coinciden'});
+                        res.status(403).send({type:"BAD_CREDENTIALS",error:'Las contraseñas no coinciden'});
                     }
                 }else{
-                    res.status(403).send({error:'Token inválido'});
+                    res.status(403).send({type:"ERROR",error:'Token inválido'});
                 }
             
             }else{
-                res.status(404).send({error:'No se ha encontrado al usuario'});
+                res.status(404).send({type:"ERROR",error:'No se ha encontrado al usuario'});
             }
         }catch(err){
-            res.status(500).send({msg:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
+            res.status(500).send({type:"ERROR",error:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
         }
     }else{
-        res.status(403).send({error:'No tiene permiso para acceder a este enlace'});
+        res.status(403).send({type:"ERROR",error:'No tiene permiso para acceder a este enlace'});
     }
     
 }
@@ -106,15 +111,16 @@ export const sendMailResetPassword= async function (req:Request, res:Response) {
                         expiresIn: '1h'
                     });
                     await sendResetPasswordEmail(user,token);
-                    res.status(200).send({msg:'Email de reseteo de password enviado'});
+                    res.status(200).send({type:"SUCCESS",msg:'Email de reseteo de password enviado'});
                 }else{
-                    res.status(500).send({msg:'This users dont exists'});
+                    res.status(500).send({type:"ERROR",error:'This users dont exists'});
                 }
             }catch(err){
-                res.status(500).send({msg:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
+                console.log(req.body)
+                res.status(500).send({type:"ERROR",error:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
             }
         }else{
-            res.status(400).send({msg:'El email es necesarios para poder enviar el email de reset'});
+            res.status(400).send({type:"ERROR",error:'El email es necesarios para poder enviar el email de reset'});
         }
     
 }

@@ -7,6 +7,7 @@ export const saveTaskList = async function (request: Request, res: Response) {
 
     if (request.body && Object.keys(request.body).length > 0) {
         try {
+            request.body.createdBy = request.user;
             let t = new TaskList(request.body);
             if (await t.save()) {
                 res.status(201).send({ list:t,msg: "La lista se ha guardado con éxito" });
@@ -32,7 +33,7 @@ export const deleteOneTaskList = async function (request: Request, res: Response
     if (request.params["id"] && request.params["id"].length > 0) {
         try {
 
-            let t = await TaskList.findOne({_id:request.params["id"], createdBy:request.body.createdBy});
+            let t = await TaskList.findOne({_id:request.params["id"], createdBy:request.user});
             if (t) {
                 if ( await t.remove()) {
                     res.status(200).send({ msg: "La lista se ha borrado con éxito" });
@@ -56,7 +57,7 @@ export const updateTaskList = async function (req: Request, res: Response) {
     if (req.body && Object.keys(req.body).length > 0 && req.params["id"]) {
         try {
 
-            let t = await TaskList.findById(req.params["id"]);
+            let t = await TaskList.findOne({_id:req.params["id"],createdBy:req.user});
             if(t){
                let updated = await t.updateOne(req.body,{runValidators:true});
                 if (updated && updated.nModified>0) {

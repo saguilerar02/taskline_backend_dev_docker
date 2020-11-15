@@ -86,28 +86,31 @@ export const showTimeLine = async function (req: Request, res: Response) {
 
         if (req.params) {
             try {
+
                 let tasks:ITask[]|null;
                 if(req.params['last']){
-                    tasks = await Task.find({ createdBy: req.user, _id: { $lt: req.params['last'] }, "status":"PENDING", contributors:req.user })
+                    tasks = await Task.find({$or: [{ createdBy: req.user, status:"PENDING", _id: { $lt: req.params['last'] } }, { status:"PENDING", contributors:req.user, _id: { $lt: req.params['last'] } }]})
                     .sort({ archivementDateTime: -1, _id: -1 })
                     .limit(7);
                 }else {
-                    console.log('Hola');
-                    tasks = await Task.find({ "createdBy": req.user })
+                    tasks = await Task.find({$or: [{ createdBy: req.user, status:"PENDING" }, { status:"PENDING", contributors:req.user }]})
                     .sort({ archivementDateTime: -1, _id: -1 })
                     .limit(7);
                 }
+                let userTasksNumber =  await Task.find({$or: [{ createdBy: req.user, status:"PENDING" }, { status:"PENDING", contributors:req.user }]})
+                .countDocuments();
+
                 if (tasks && tasks.length > 0) {
-                    res.status(201).send({ timeline: tasks });
+                    res.status(200).send({ timeline: tasks, items:userTasksNumber });
                 } else {
-                    res.status(404).send({ msg: "El timeline está vacío" });
+                    res.status(404).send({ error: "El timeline está vacío" });
                 }
             } catch (err) {
-                res.status(500).send({ msg: "Ha ocurrido un error inesperado, inténtelo de nuevo más  tarde" });
+                res.status(500).send({ error: "Ha ocurrido un error inesperado, inténtelo de nuevo más  tarde" });
             }
         
         } else{
-            res.status(400).send("Bad Request: La peticion está inválida");
+            res.status(400).send({ error: "Bad Request: La peticion está inválida"});
         }
     
 }

@@ -7,7 +7,7 @@ export interface IUser extends Document{
     password:String
     name:String
     phoneNumber:String
-    birth_day:Date
+    birthDate:Date
     active:Boolean
     createdAt:Date
     profileImage:String

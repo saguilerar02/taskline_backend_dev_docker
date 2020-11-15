@@ -3,7 +3,7 @@ import jsonwebtoken from 'jsonwebtoken';
 import { deleteOneReminder, saveReminder } from "../controllers/ReminderController";
 import { deleteOneTask, saveTask, showTimeLine, updateTask } from "../controllers/TaskController";
 import { deleteOneTaskList, getUserLists, saveTaskList, updateTaskList } from "../controllers/TaskListsController";
-import { changeProfileImage, getUserProfile } from "../controllers/UserController";
+import { changeProfileImage, getUserDTO, getUserProfile, updateUser } from "../controllers/UserController";
 import { uploadImageProfileImage } from "../services/MulterConfig";
 const authRouter = Router();
 
@@ -11,20 +11,19 @@ authRouter.use(async function (req:Request, res:Response, next) {
     try{
         let header = req.headers["authorization"];
         let token =header && header.split(" ")[1];
-        
         if(token){
             let verified = jsonwebtoken.verify(token,process.env.PUBLIC_KEY as string,{ 
                 issuer:'taskline',
                 audience:'https://beermaginary.com'
             }) as any;
-            if(!verified)res.status(403).send("Bad token");
+            if(!verified)res.status(403).send({error:"Su token de autenticación es inválido o ha caducado"});
             req.user = verified.user
             next();
         }else{
-            next(new Error("BAD TOKEN"));
+            res.status(403).send({error:"Su token de autenticación es inválido o ha caducado"});
         }
     }catch(err){
-        next(new Error("BAD TOKEN"));
+        res.status(403).send({error:"Su token de autenticación es inválido o ha caducado"});
     }
   });
 
@@ -55,6 +54,8 @@ authRouter.delete("/reminder/delete/:id", deleteOneReminder);
 //USER
 
 authRouter.get("/profile", getUserProfile);
+authRouter.put("/profile", updateUser);
 authRouter.put("/upload", uploadImageProfileImage,changeProfileImage);
+authRouter.get("/userDTO", getUserDTO)
 
 export default authRouter;

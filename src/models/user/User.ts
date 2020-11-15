@@ -1,6 +1,4 @@
-import {Document, Schema, Model, model } from 'mongoose'
-import moment from 'moment'
-import bcrypt from 'bcrypt';
+import { model } from 'mongoose';
 import { IUser } from './IUser';
 import { user_schema } from './UserSchema';
 

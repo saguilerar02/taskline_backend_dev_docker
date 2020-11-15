@@ -29,7 +29,8 @@ export let user_schema = new Schema({
     },
     name:{
       type:String,
-      match:[/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{3,29}$/,'Caracteres invalidos en su nombre'],
+      minlength:[2,"La contraseña es demasiado corta minimo 12 caracteres"],
+      maxlength:[75,"La contraseña es demasiado corta minimo 12 caracteres"],
       required:[true, 'El nombre es necesario'],
       trim: true,
     },
@@ -57,8 +58,7 @@ export let user_schema = new Schema({
     },
     profileImage:{
       type:String,
-      trim:true,
-      default:process.env.DEFAULT_USER_IMAGE
+      default:'/defaults/avatar.png'
     }
 }); 
 

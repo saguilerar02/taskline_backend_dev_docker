@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import { Request, Response } from 'express'
 import fs from 'fs'
 import jsonwetoken from 'jsonwebtoken'
+import { stringify } from 'querystring'
 import { responseUserErrorMaker } from '../handlers/ErrorHandler'
 import User from '../models/user/User'
 import { comparePassword, encriptarPassword } from '../services/Bcrypter'
@@ -129,44 +130,55 @@ export const updateUser= async function(req:Request, res:Response) {
 
     if( req.body){
         try{
-            console.log(req.user)
+            console.log(req.body)
             let user = await User.findOne({_id:req.user});
             if(user){
                 let updated:any = await user.updateOne(req.body,{runValidators:true});
                 if (updated && updated.nModified>0) {
-                    res.status(201).send({msg: "El perfil de usuario se ha actualizado con éxito" });
+                    res.status(201).send({type:'SUCCESS', msg: "El perfil de usuario se ha actualizado con éxito" });
                 } else {
-                    res.status(500).send({ msg: "Ha ocurrido un error inesperado, no se pudo actualizar el perfil de Usuario" });
+                    res.status(500).send({ type:'ERROR',error: "Ha ocurrido un error inesperado, no se pudo actualizar el perfil de Usuario" });
                 }
             }else{
-                res.status(404).send({msg:'El usuario especificado no se encontró'});
+                res.status(404).send({ type:'ERROR',error:'El usuario especificado no se encontró'});
             }
 
         }catch(err){
             let response = responseUserErrorMaker(err);
-            res.status(response.status).send({error:response.error})
+            res.status(response.status).send({type:response.error.type, error:response.error.error});
         }
     }else{
-        res.status(500).send({msg: 'La petición no es válida'});
+        res.status(500).send({ type:'ERROR',error:'La petición no es válida'});
     }
 }
 
 export const getUserProfile= async function(req:Request, res:Response) {
-
     if( req.user){
         try{
-            let user =await User.findOne({_id:req.user});
+            let user =await User.findOne({_id:req.user}).select("email username name phoneNumber birthDate profileImage");
             if(user){
-                res.status(200).send({user:user});
+                let img="";
+                if(!user.profileImage.startsWith('/defaults')){
+                    if(fs.existsSync(process.env.UPLOADS as string + user.profileImage.toString())){
+                        
+                        img= fs.readFileSync(process.env.UPLOADS as string + user.profileImage.toString(),{encoding: 'base64'})
+                    }else{
+                        img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
+                    }
+                    
+                }else{
+                    img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
+                }
+                user.profileImage ='data:image/png;base64,' + img;
+                res.status(200).send({type:"SUCCESS", user:user});
             }else{
-                res.status(404).send({error:"El usuario especificado no se encontró"});
+                res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});
             }
         }catch(err){
-            let response = responseUserErrorMaker(err);
-            res.status(response.status).send({error:response.error})
+            res.status(500).send({type:"ERROR",error:"Ha ocurrido un error al intentar obtener el usuario"})
         }
     }else{
-        res.status(500).send({msg: 'La petición no es válida'});
+        res.status(500).send({type:"ERROR",error: 'La petición no es válida'});
     }
 }
 
@@ -180,19 +192,52 @@ export const changeProfileImage = async function (req:Request, res:Response) {
                     res.status(200).send({msg:"Foto de perfil actualizada"});
                 }else{
                     if(fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                    res.status(500).send({ msg: "Ha ocurrido un error inesperado, no se pudo actualizar la foto de perfil" });
+                    res.status(500).send({type:"ERROR", error: "Ha ocurrido un error inesperado, no se pudo actualizar la foto de perfil" });
                 }
             }else{
                 if(fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                res.status(404).send({error:"El usuario especificado no se encontró"});
+                res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});
             }
         }catch(err){
             let response = responseUserErrorMaker(err);
             if(fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-            res.status(response.status).send({error:response.error})
+            res.status(response.status).send({type:"ERROR",error:response.error})
         }
     }else{
         res.status(500).send({msg: 'La petición no es válida'});
     }
     
+}
+export const getUserDTO= async function(req:Request, res:Response) {
+
+    if( req.user){
+        try{
+            let user =await User.findOne({_id:req.user}).select("username profileImage");
+            if(user){
+                let img = "";
+                let username = "";
+                if(!user.profileImage.startsWith('/defaults')){
+                    if(fs.existsSync(process.env.UPLOADS as string + user.profileImage.toString())){
+                        
+                        img= fs.readFileSync(process.env.UPLOADS as string + user.profileImage.toString(),{encoding: 'base64'})
+                    }else{
+                        img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
+                    }
+                    
+                }else{
+                    img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
+                }
+                username = user.username.toString();
+
+                res.status(200).send({user:{username:username, img:'data:image/png;base64,' +img}});
+            }else{
+                res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});
+            }
+        }catch(err){
+            console.log(err);
+            res.status(500).send({type:"ERROR",error:"Ha ocurrido un error al intentar obtener el usuario"})
+        }
+    }else{
+        res.status(500).send({type:"ERROR",error: 'La petición no es válida'});
+    }
 }

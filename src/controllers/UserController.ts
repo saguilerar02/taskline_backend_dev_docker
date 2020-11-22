@@ -2,8 +2,8 @@ import bcrypt from 'bcrypt'
 import { Request, Response } from 'express'
 import fs from 'fs'
 import jsonwetoken from 'jsonwebtoken'
-import { stringify } from 'querystring'
 import { responseUserErrorMaker } from '../handlers/ErrorHandler'
+import { IUser } from '../models/user/IUser'
 import User from '../models/user/User'
 import { comparePassword, encriptarPassword } from '../services/Bcrypter'
 import { sendResetPasswordEmail } from '../services/Mailer'
@@ -43,8 +43,7 @@ export const signIn =async function (req:Request, res:Response) {
                         algorithm:"RS256",
                         expiresIn: "3h"
                     });
-                    console.log('SignedIn successfully');
-                    res.status(200).send({type:'SUCCES',msg:'Ha iniciado sesión correctamente',token:token});
+                    res.status(200).send({type:'SUCCES',msg:'Ha iniciado sesión correctamente',user:user.id,token:token});
                 }else{
                     res.status(500).send({type:"BAD_CREDENTIALS", error:'El email y la contraseña no corresponden'});
                 }
@@ -130,7 +129,6 @@ export const updateUser= async function(req:Request, res:Response) {
 
     if( req.body){
         try{
-            console.log(req.body)
             let user = await User.findOne({_id:req.user});
             if(user){
                 let updated:any = await user.updateOne(req.body,{runValidators:true});
@@ -159,9 +157,9 @@ export const getUserProfile= async function(req:Request, res:Response) {
             if(user){
                 let img="";
                 if(!user.profileImage.startsWith('/defaults')){
-                    if(fs.existsSync(process.env.UPLOADS as string + user.profileImage.toString())){
+                    if(fs.existsSync(user.profileImage.toString())){
                         
-                        img= fs.readFileSync(process.env.UPLOADS as string + user.profileImage.toString(),{encoding: 'base64'})
+                        img= fs.readFileSync(user.profileImage.toString(),{encoding: 'base64'})
                     }else{
                         img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
                     }
@@ -169,8 +167,7 @@ export const getUserProfile= async function(req:Request, res:Response) {
                 }else{
                     img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
                 }
-                user.profileImage ='data:image/png;base64,' + img;
-                res.status(200).send({type:"SUCCESS", user:user});
+                res.status(200).send({type:"SUCCESS", user:user, img:'data:image/png;base64,' + img});
             }else{
                 res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});
             }
@@ -187,7 +184,7 @@ export const changeProfileImage = async function (req:Request, res:Response) {
         try{
             let user =await User.findOne({_id:req.user});
             if(user){
-                let updated = await user.updateOne({profileImage: req.file.filename});
+                let updated = await user.updateOne({profileImage: process.env.UPLOADS +req.file.filename});
                 if (updated && updated.nModified && updated.nModified>0) {
                     res.status(200).send({msg:"Foto de perfil actualizada"});
                 }else{
@@ -217,9 +214,9 @@ export const getUserDTO= async function(req:Request, res:Response) {
                 let img = "";
                 let username = "";
                 if(!user.profileImage.startsWith('/defaults')){
-                    if(fs.existsSync(process.env.UPLOADS as string + user.profileImage.toString())){
+                    if(fs.existsSync(user.profileImage.toString())){
                         
-                        img= fs.readFileSync(process.env.UPLOADS as string + user.profileImage.toString(),{encoding: 'base64'})
+                        img= fs.readFileSync(user.profileImage.toString(),{encoding: 'base64'})
                     }else{
                         img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
                     }
@@ -227,9 +224,42 @@ export const getUserDTO= async function(req:Request, res:Response) {
                 }else{
                     img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
                 }
-                username = user.username.toString();
+                user.profileImage ='data:image/png;base64,' +img
 
-                res.status(200).send({user:{username:username, img:'data:image/png;base64,' +img}});
+                res.status(200).send({user:user});
+            }else{
+                res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});
+            }
+        }catch(err){
+            console.log(err);
+            res.status(500).send({type:"ERROR",error:"Ha ocurrido un error al intentar obtener el usuario"})
+        }
+    }else{
+        res.status(500).send({type:"ERROR",error: 'La petición no es válida'});
+    }
+}
+
+export const getUsersByFilter= async function(req:Request, res:Response) {
+
+    if(req.params["username"] && req.params["username"].length>0){
+        try{
+            let filter = new RegExp('^' + req.params["username"], 'i');
+            let users:Array<IUser> =await User.find().where("username").regex(filter).select("username name profileImage");
+            if(users.length>0){
+                users.map((user)=>{
+                    if(!user.profileImage.startsWith('/defaults')){
+                        if(fs.existsSync(process.env.UPLOADS as string + user.profileImage.toString())){
+                            
+                            user.profileImage='data:image/png;base64,'+fs.readFileSync(user.profileImage.toString(),{encoding: 'base64'})
+                        }else{
+                            user.profileImage='data:image/png;base64,'+fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
+                        }
+                        
+                    }else{
+                        user.profileImage= 'data:image/png;base64,'+fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
+                    }
+                })
+                res.status(200).send({type:"SUCCESS", users:users});
             }else{
                 res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});
             }

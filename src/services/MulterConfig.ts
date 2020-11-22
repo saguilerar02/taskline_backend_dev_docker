@@ -1,7 +1,6 @@
 import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
 //IMAGES
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {

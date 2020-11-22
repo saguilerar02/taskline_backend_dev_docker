@@ -3,7 +3,7 @@ import jsonwebtoken from 'jsonwebtoken';
 import { deleteOneReminder, saveReminder } from "../controllers/ReminderController";
 import { deleteOneTask, saveTask, showTimeLine, updateTask } from "../controllers/TaskController";
 import { deleteOneTaskList, getUserLists, saveTaskList, updateTaskList } from "../controllers/TaskListsController";
-import { changeProfileImage, getUserDTO, getUserProfile, updateUser } from "../controllers/UserController";
+import { changeProfileImage, getUserDTO, getUserProfile, getUsersByFilter, updateUser } from "../controllers/UserController";
 import { uploadImageProfileImage } from "../services/MulterConfig";
 const authRouter = Router();
 
@@ -57,5 +57,7 @@ authRouter.get("/profile", getUserProfile);
 authRouter.put("/profile", updateUser);
 authRouter.put("/upload", uploadImageProfileImage,changeProfileImage);
 authRouter.get("/userDTO", getUserDTO)
+authRouter.get("/users/:username", getUsersByFilter)
+
 
 export default authRouter;

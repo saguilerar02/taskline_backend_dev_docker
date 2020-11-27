@@ -33,7 +33,7 @@ authRouter.put("/task/update/:id", updateTask);
 
 authRouter.delete("/task/delete/:id", deleteOneTask);
 
-authRouter.get("/timeline/:last?",showTimeLine);
+authRouter.get("/timeline/:last?/:lastDate?",showTimeLine);
 
 
 //LISTS

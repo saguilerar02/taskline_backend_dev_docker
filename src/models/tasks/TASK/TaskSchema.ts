@@ -22,6 +22,7 @@ export const task_schema = new Schema(
         description:{
             type:String,
             minlength:3,
+            maxlength:255,
             trim:true
         },
         createdAt: {

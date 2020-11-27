@@ -15,14 +15,10 @@ export const reminder_schema = new Schema(
         },
         reminderData:{
             type:String,
-            minlength:10,
-            maxlength:255,
+            minlength:[10,'La longitud del mensaje debe ser de entre 10 y 45 caracteres'],
+            maxlength:[45,'La longitud del mensaje debe ser de entre 10 y 45 caracteres'],
             trim:true,
             required:true
-        },
-        reminded:{
-            type:Boolean,
-            default:false
         },
         idTask:{
             type:String,

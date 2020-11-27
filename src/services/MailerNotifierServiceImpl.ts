@@ -33,8 +33,6 @@ export const job = new CronJob('0 * * * * *', async function() {
                 }
             });
             console.log("Todos los emails han sido recordados con éxito")
-        }else{
-            console.log("No había ningun reminder");
         }
     }catch(err){
         console.log(err);

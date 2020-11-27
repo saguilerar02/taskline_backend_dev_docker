@@ -116,7 +116,6 @@ export const sendMailResetPassword= async function (req:Request, res:Response) {
                     res.status(500).send({type:"ERROR",error:'This users dont exists'});
                 }
             }catch(err){
-                console.log(req.body)
                 res.status(500).send({type:"ERROR",error:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
             }
         }else{

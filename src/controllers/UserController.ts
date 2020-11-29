@@ -154,19 +154,7 @@ export const getUserProfile= async function(req:Request, res:Response) {
         try{
             let user =await User.findOne({_id:req.user}).select("email username name phoneNumber birthDate profileImage");
             if(user){
-                let img="";
-                if(!user.profileImage.startsWith('/defaults')){
-                    if(fs.existsSync(user.profileImage.toString())){
-                        
-                        img= fs.readFileSync(user.profileImage.toString(),{encoding: 'base64'})
-                    }else{
-                        img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
-                    }
-                    
-                }else{
-                    img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
-                }
-                res.status(200).send({type:"SUCCESS", user:user, img:'data:image/png;base64,' + img});
+                res.status(200).send({type:"SUCCESS", user:user});
             }else{
                 res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});
             }
@@ -210,21 +198,6 @@ export const getUserDTO= async function(req:Request, res:Response) {
         try{
             let user =await User.findOne({_id:req.user}).select("username profileImage");
             if(user){
-                let img = "";
-                let username = "";
-                if(!user.profileImage.startsWith('/defaults')){
-                    if(fs.existsSync(user.profileImage.toString())){
-                        
-                        img= fs.readFileSync(user.profileImage.toString(),{encoding: 'base64'})
-                    }else{
-                        img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
-                    }
-                    
-                }else{
-                    img= fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
-                }
-                user.profileImage ='data:image/png;base64,' +img
-
                 res.status(200).send({user:user});
             }else{
                 res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});
@@ -245,19 +218,6 @@ export const getUsersByFilter= async function(req:Request, res:Response) {
             let filter = new RegExp('^' + req.params["username"], 'i');
             let users:Array<IUser> =await User.find().where("username").regex(filter).select("username name profileImage");
             if(users.length>0){
-                users.map((user)=>{
-                    if(!user.profileImage.startsWith('/defaults')){
-                        if(fs.existsSync(process.env.UPLOADS as string + user.profileImage.toString())){
-                            
-                            user.profileImage='data:image/png;base64,'+fs.readFileSync(user.profileImage.toString(),{encoding: 'base64'})
-                        }else{
-                            user.profileImage='data:image/png;base64,'+fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
-                        }
-                        
-                    }else{
-                        user.profileImage= 'data:image/png;base64,'+fs.readFileSync(process.env.DEFAULT_USER_IMAGE as string,{encoding: 'base64'})
-                    }
-                })
                 res.status(200).send({type:"SUCCESS", users:users});
             }else{
                 res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});

@@ -45,10 +45,8 @@ list_schema.pre<ITaskList>("remove",async function(next){
    
     let deletedTasks = await Task.deleteMany({_id: { $in: this.tasks } })
     let deletedtReminders = await Reminder.deleteMany({idTask: { $in: this.tasks } });
-
-
-    if(deletedTasks.deletedCount && deletedTasks.deletedCount>0 && 
-        deletedtReminders.deletedCount && deletedtReminders.deletedCount){
+    console.log(deletedtReminders);
+    if(deletedTasks && deletedTasks.ok  &&  deletedtReminders && deletedTasks.ok){
         next();
     }else{
         throw new Error("Something went wrong");

@@ -36,15 +36,22 @@ export const deleteOneTaskList = async function (request: Request, res: Response
             let t = await TaskList.findOne({_id:request.params["id"], createdBy:request.user});
             if (t) {
                 if ( await t.remove()) {
-                    res.status(200).send({ msg: "La lista se ha borrado con éxito" });
+                    res.status(200).send({type:"SUCCESS",msg:"La lista se ha borrado con éxito" });
                 } else {
-                    res.status(500).send({ msg: "No se ha podido borrar la lista, intentelo de nuevo más tarde" });
+                    res.status(500).send({type:"ERROR",  error:"No se ha podido borrar la lista, intentelo de nuevo más tarde" });
                 }
             } else {
-                res.status(404).send({ msg: "La lista especificada no se encontró" });
+                res.status(404).send({type:"ERROR",  error: "La lista especificada no se encontró" });
             }
         } catch (err) {
-            res.status(500).send({ msg: "Ha ocurrido un error al intentar eliminar la Lista, inténtelo de nuevo más  tarde" });
+            if (err.name === "ValidationError") {
+                res.status(422).send({type:"VALIDATION_ERROR", error: responseErrorMaker(err) });
+            } else {
+                if(err.code === 11000){
+                    res.status(500).send({type:"ERROR", error: 'La tarea tiene la misma fecha de realización que otra, por favor introduzca una fecha distinta' });
+                }
+                res.status(500).send({type:"ERROR", error: err.message });
+            }
         }
     } else {
         res.status(400).send("Bad Request: petición inválida");
@@ -61,21 +68,20 @@ export const updateTaskList = async function (req: Request, res: Response) {
             if(t){
                let updated = await t.updateOne(req.body,{runValidators:true});
                 if (updated && updated.nModified>0) {
-                    res.status(200).send({msg: "La lista se ha actualizado con éxito" });
+                    res.status(200).send({type:"SUCCESS",msg: "La lista se ha actualizado con éxito" });
                 } else {
-                    res.status(404).send({ error: "Ha ocurrido un error inesperado, intentelo de nuevo más tarde" });
+                    res.status(404).send({type:"ERROR", error: "Ha ocurrido un error inesperado, intentelo de nuevo más tarde" });
                 }
             }
         } catch (err) {
             if (err.name === "ValidationError") {
-                res.status(422).send(responseErrorMaker(err));
+                res.status(422).send({type:"VALIDATION_ERROR",error:responseErrorMaker(err)});
             } else {
-                res.status(500).send({ error: "Ha ocurrido un error inesperado, intentelo de nuevo más tarde" });
-                console.error(err);
+                res.status(500).send({type:"ERROR",error: "Ha ocurrido un error inesperado, intentelo de nuevo más tarde" });
             }
         }
     } else {
-        res.status(400).send("Bad Request: petición inválida");
+        res.status(400).send({type:"ERROR",error: "Bad Request: petición inválida"});
     }
 }
 

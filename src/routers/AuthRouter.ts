@@ -5,6 +5,7 @@ import { deleteOneTask, saveTask, showTimeLine, updateTask } from "../controller
 import { deleteOneTaskList, getUserLists, saveTaskList, updateTaskList } from "../controllers/TaskListsController";
 import { changeProfileImage, getUserDTO, getUserProfile, getUsersByFilter, updateUser } from "../controllers/UserController";
 import { uploadImageProfileImage } from "../services/MulterConfig";
+import express from 'express';
 const authRouter = Router();
 
 authRouter.use(async function (req:Request, res:Response, next) {
@@ -58,6 +59,5 @@ authRouter.put("/profile", updateUser);
 authRouter.put("/upload", uploadImageProfileImage,changeProfileImage);
 authRouter.get("/userDTO", getUserDTO)
 authRouter.get("/users/:username", getUsersByFilter)
-
 
 export default authRouter;

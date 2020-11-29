@@ -147,13 +147,7 @@ export const showTimeLine = async function (req: Request, res: Response) {
                         model:'Reminder'
                     });
                 }
-                tasks.map((t)=>{
-                    t.contributors.map((c:any)=>{
-                        if(c.profileImage){
-                            c.profileImage = 'data:image/png;base64,'+fs.readFileSync(c.profileImage, {encoding: 'base64'});
-                        }
-                    })
-                })
+               
                 let userTasksNumber =  await Task.find({$or: [{ createdBy: req.user }, {contributors:req.user }]})
                 .countDocuments();
 
@@ -163,7 +157,7 @@ export const showTimeLine = async function (req: Request, res: Response) {
                     res.status(404).send({ error: "Ya has cargado todas las tareas" });
                 }
             } catch (err) {
-                console.log(err)
+                //console.log(err)
                 res.status(500).send({ error: "Ha ocurrido un error inesperado, inténtelo de nuevo más  tarde" });
             }
         

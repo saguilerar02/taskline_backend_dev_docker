@@ -25,7 +25,7 @@ export async function sendReminderEmail(reminder:any) {
           to: reminder.idTask.contributors.map(
             (contributor:IUser,i:number,array:[])=>{return contributor.email+','}
           )+reminder.createdBy.email, 
-          subject: "#REMINDER:"+reminder.id+" -Recuerda que tienes algo por hacer", 
+          subject: `#REMINDER:${reminder.id} -Recuerda que tienes algo por hacer `, 
           html: "<h2>"+reminder.reminderData+"</h2>",
         });
        return info;

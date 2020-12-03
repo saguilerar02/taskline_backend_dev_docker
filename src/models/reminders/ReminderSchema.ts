@@ -80,8 +80,8 @@ reminder_schema.pre<IReminder>("remove",async function (next) {
 
 reminder_schema.pre<IReminder>("validate",async function(next){
 
-    if(moment(this.createdAt).diff(this.remindAt, "minute")>-60){
-        throw new Error("La fecha del reminder debe ser 1 hora mayor que la fecha de creación del mismo");
+    if(moment(this.createdAt).diff(this.remindAt, "minute")>-1){
+        throw new Error("La fecha del reminder debe ser 1 minuto mayor que la fecha de creación del mismo");
     }else{
         next();
     }

@@ -6,7 +6,7 @@ import { sendReminderEmail } from './Mailer';
 export const job = new CronJob('0 * * * * *', async function() {
     try{
         let reminders:any[]|null = await Reminder
-                                        .find({"remindAt":{$lte:moment().add(30,'minutes').toDate()},"reminded":false})
+                                        .find({remindAt:{$lte:moment().add(5,'minutes').toDate()}})
                                         .populate({
                                             path:'idTask',
                                             model:'Task',
@@ -24,12 +24,9 @@ export const job = new CronJob('0 * * * * *', async function() {
                                         })
         if(reminders && reminders.length>0){
             reminders.forEach(async rem => {
-                if(rem.idTask.contributors && rem.idTask.contributors.length>0){
-                    if(sendReminderEmail(rem)){
-                        rem.depopulate();
-                        await rem.delete();
-                    }
-                    
+                if(await sendReminderEmail(rem)){
+                    rem.depopulate();
+                    await rem.delete();
                 }
             });
             console.log("Todos los emails han sido recordados con éxito")

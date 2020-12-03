@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import jsonwebtoken from 'jsonwebtoken';
 import { deleteOneReminder, saveReminder } from "../controllers/ReminderController";
 import { deleteOneTask, saveTask, showTimeLine, updateTask } from "../controllers/TaskController";
-import { deleteOneTaskList, getUserLists, saveTaskList, updateTaskList } from "../controllers/TaskListsController";
+import { deleteOneTaskList, getOneList, getUserLists, saveTaskList, updateTaskList } from "../controllers/TaskListsController";
 import { changeProfileImage, getUserDTO, getUserProfile, getUsersByFilter, updateUser } from "../controllers/UserController";
 import { uploadImageProfileImage } from "../services/MulterConfig";
 import express from 'express';
@@ -45,6 +45,7 @@ authRouter.put("/list/update/:id", updateTaskList);
 authRouter.delete("/list/delete/:id", deleteOneTaskList);
 
 authRouter.get("/lists",getUserLists);
+authRouter.get("/list/:idList",getOneList);
 
 //REMINDER
 authRouter.post("/reminder/create", saveReminder);

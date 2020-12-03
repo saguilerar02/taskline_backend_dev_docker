@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { responseErrorMaker } from '../handlers/ErrorHandler';
 import { ITaskList } from '../models/lists/LIST/ITaskList';
 import TaskList from '../models/lists/LIST/TaskList';
+import Reminder from '../models/reminders/Reminder';
+import { ITask } from '../models/tasks/TASK/ITask';
 
 export const saveTaskList = async function (request: Request, res: Response) {
 
@@ -106,4 +108,44 @@ export const getUserLists = async function (req: Request, res: Response) {
         res.status(400).send({type:"ERROR", error:"Bad Request: petición inválida"});
     }
    
+}
+
+export const getOneList = async function (req: Request, res: Response) {
+
+    if (req.params && req.params['idList']) {
+        try {
+            let list: ITaskList|null;
+                list = await TaskList.findById(req.params['idList'])
+                .sort({ archivementDateTime: 1, _id:1 })
+                .populate(
+                    {
+                        path:'tasks',
+                        model:'Task',
+                        populate:[
+                            {
+                                path:'contributors',
+                                model:"User",
+                                select:'username name profileImage _id',
+                            },
+                            {
+                                path:'reminders',
+                                model:'Reminder',
+                            }
+                        ]  
+                    }
+                )
+                if (list) {
+                    res.status(200).send({type:'SUCCESS', list: list });
+                } else {
+                    res.status(404).send({type:"ERROR", error: "No se encontro la lista especificada" });
+                }
+        } catch (err) {
+            //console.log(err)
+            res.status(500).send({type:"ERROR", error:  "Ha ocurrido un error inesperado, inténtelo de nuevo más  tarde" });
+        }
+    
+    } else{
+        res.status(400).send({ error: "Bad Request: La peticion está inválida"});
+    }
+
 }

@@ -1,6 +1,6 @@
 import { CronJob } from 'cron';
 import moment from 'moment';
-import Reminder from '../models/reminders/Reminder';
+import Reminder from '../models/REMINDER/Reminder';
 import { sendReminderEmail } from './Mailer';
 
 export const job = new CronJob('0 * * * * *', async function() {

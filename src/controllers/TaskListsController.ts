@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
 import { responseErrorMaker } from '../handlers/ErrorHandler';
-import { ITaskList } from '../models/lists/LIST/ITaskList';
-import TaskList from '../models/lists/LIST/TaskList';
-import Reminder from '../models/reminders/Reminder';
-import { ITask } from '../models/tasks/TASK/ITask';
+import { ITaskList } from '../models/LIST/ITaskList';
+import TaskList from '../models/LIST/TaskList';
 
 export const saveTaskList = async function (request: Request, res: Response) {
 
@@ -46,14 +44,7 @@ export const deleteOneTaskList = async function (request: Request, res: Response
                 res.status(404).send({type:"ERROR",  error: "La lista especificada no se encontró" });
             }
         } catch (err) {
-            if (err.name === "ValidationError") {
-                res.status(422).send({type:"VALIDATION_ERROR", error: responseErrorMaker(err) });
-            } else {
-                if(err.code === 11000){
-                    res.status(500).send({type:"ERROR", error: 'La tarea tiene la misma fecha de realización que otra, por favor introduzca una fecha distinta' });
-                }
-                res.status(500).send({type:"ERROR", error: err.message });
-            }
+            res.status(500).send({type:"ERROR", error: err.message });
         }
     } else {
         res.status(400).send("Bad Request: petición inválida");
@@ -108,44 +99,4 @@ export const getUserLists = async function (req: Request, res: Response) {
         res.status(400).send({type:"ERROR", error:"Bad Request: petición inválida"});
     }
    
-}
-
-export const getOneList = async function (req: Request, res: Response) {
-
-    if (req.params && req.params['idList']) {
-        try {
-            let list: ITaskList|null;
-                list = await TaskList.findById(req.params['idList'])
-                .sort({ archivementDateTime: 1, _id:1 })
-                .populate(
-                    {
-                        path:'tasks',
-                        model:'Task',
-                        populate:[
-                            {
-                                path:'contributors',
-                                model:"User",
-                                select:'username name profileImage _id',
-                            },
-                            {
-                                path:'reminders',
-                                model:'Reminder',
-                            }
-                        ]  
-                    }
-                )
-                if (list) {
-                    res.status(200).send({type:'SUCCESS', list: list });
-                } else {
-                    res.status(404).send({type:"ERROR", error: "No se encontro la lista especificada" });
-                }
-        } catch (err) {
-            //console.log(err)
-            res.status(500).send({type:"ERROR", error:  "Ha ocurrido un error inesperado, inténtelo de nuevo más  tarde" });
-        }
-    
-    } else{
-        res.status(400).send({ error: "Bad Request: La peticion está inválida"});
-    }
-
 }

@@ -1,5 +1,5 @@
 import { Schema, Document } from "mongoose";
-import { IReminder } from "../../reminders/IReminder";
+import { IReminder } from "../REMINDER/IReminder";
 
 
 export interface ITask extends Document{

@@ -1,9 +1,8 @@
 import moment from "moment";
 import { Schema } from "mongoose";
-import { ITaskList } from "../../lists/LIST/ITaskList";
-import TaskList from "../../lists/LIST/TaskList";
-import Reminder from "../../reminders/Reminder";
-import { options } from "./DiscriminatorOptions";
+import { ITaskList } from "../LIST/ITaskList";
+import TaskList from "../LIST/TaskList";
+import Reminder from "../REMINDER/Reminder";
 import { ITask } from "./ITask";
 
 
@@ -59,7 +58,7 @@ export const task_schema = new Schema(
             ref:"User",
             required:true
         }
-    },options
+    }
 );
 
 task_schema.index({archivementDateTime: 1, createdBy: 1,  },{unique: true, backgorund:true});
@@ -73,13 +72,13 @@ task_schema.pre<ITask>("save",async function (next) {
             if(await tl.save()){
                 next();
             }else{
-                throw new Error("Algo salió mal") ;
+                throw new Error("No se ha podido añadir la tarea a la lista, por favor intentelo de nuevo más tarde") ;
             }
         }else{
-            throw new Error("TaskList not found") ;     
+            throw new Error("No se ha encontrado la lista con la id especificada") ;     
         }
     }else{
-        throw new Error("TaskList id is null or empty");   
+        throw new Error("El id de la lista es nulo, especifique una lista para la tarea");   
     }
     
 });
@@ -99,10 +98,10 @@ task_schema.pre<ITask>("remove",async function (next) {
             }
             next();
         }else{
-            throw new Error("TaskList not found");     
+            throw new Error("No se ha encontrado la tarea especificada");     
         }
     }else{
-        throw new Error("TaskList id is null or empty");   
+        throw new Error("El id de la tarea es nulo, especifique uno por favor");   
     }
     
 });

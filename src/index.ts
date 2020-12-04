@@ -29,7 +29,6 @@ const run =async  function () {
             createTransporter();
             job.start();
         } catch (error) {
-            console.log(error);
             console.error('Algo salio mal, ERROR conectando con la base de datos')
             job.stop()
         }

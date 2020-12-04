@@ -3,8 +3,9 @@ import { Request, Response } from 'express'
 import fs from 'fs'
 import jsonwetoken from 'jsonwebtoken'
 import { responseUserErrorMaker } from '../handlers/ErrorHandler'
-import { IUser } from '../models/user/IUser'
-import User from '../models/user/User'
+import { IUser } from '../models/USER/IUser'
+import User from '../models/USER/User'
+
 import { comparePassword, encriptarPassword } from '../services/Bcrypter'
 import { sendResetPasswordEmail } from '../services/Mailer'
 
@@ -113,7 +114,7 @@ export const sendMailResetPassword= async function (req:Request, res:Response) {
                     await sendResetPasswordEmail(user,token);
                     res.status(200).send({type:"SUCCESS",msg:'Email de reseteo de password enviado'});
                 }else{
-                    res.status(500).send({type:"ERROR",error:'This users dont exists'});
+                    res.status(500).send({type:"ERROR",error:'No hay ningun usuario con ese email'});
                 }
             }catch(err){
                 res.status(500).send({type:"ERROR",error:'Ha ocurrido un error inesperado, por favor inténtelo más tarde'});
@@ -203,7 +204,6 @@ export const getUserDTO= async function(req:Request, res:Response) {
                 res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});
             }
         }catch(err){
-            console.log(err);
             res.status(500).send({type:"ERROR",error:"Ha ocurrido un error al intentar obtener el usuario"})
         }
     }else{
@@ -223,7 +223,6 @@ export const getUsersByFilter= async function(req:Request, res:Response) {
                 res.status(404).send({type:"ERROR",error:"El usuario especificado no se encontró"});
             }
         }catch(err){
-            console.log(err);
             res.status(500).send({type:"ERROR",error:"Ha ocurrido un error al intentar obtener el usuario"})
         }
     }else{

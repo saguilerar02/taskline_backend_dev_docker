@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { responseErrorMaker } from "../handlers/ErrorHandler";
-import { ITask } from '../models/tasks/TASK/ITask';
-import Task from "../models/tasks/TASK/Task";
-import fs from 'fs'
 import moment from 'moment';
+import { responseErrorMaker } from "../handlers/ErrorHandler";
+import { ITask } from '../models/TASK/ITask';
+import Task from "../models/TASK/Task";
 
 const ITEMS = 7;
 
@@ -157,7 +156,6 @@ export const showTimeLine = async function (req: Request, res: Response) {
                     res.status(404).send({ error: "Ya has cargado todas las tareas" });
                 }
             } catch (err) {
-                //console.log(err)
                 res.status(500).send({ error: "Ha ocurrido un error inesperado, inténtelo de nuevo más  tarde" });
             }
         

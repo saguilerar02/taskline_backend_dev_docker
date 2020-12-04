@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
-import { IUser } from '../models/user/IUser';
-
+import { IUser } from '../models/USER/IUser';
 
 let mailer:Mail;
 
@@ -25,7 +24,7 @@ export async function sendReminderEmail(reminder:any) {
           to: reminder.idTask.contributors.map(
             (contributor:IUser,i:number,array:[])=>{return contributor.email+','}
           )+reminder.createdBy.email, 
-          subject: `#REMINDER:${reminder.id} -Recuerda que tienes algo por hacer `, 
+          subject: "#REMINDER:"+reminder.id+" -Recuerda que tienes algo por hacer", 
           html: "<h2>"+reminder.reminderData+"</h2>",
         });
        return info;
@@ -40,7 +39,7 @@ export async function sendResetPasswordEmail(user:IUser,token:string) {
         from: process.env.MAILERACCOUNT,
         to:user.email as string,
         subject: "#RESET PASSWORD:Vamos a resetear tu password ", 
-        html:'<a href="http://localhost:4200/reset_password/' + user.id + '/' + token + '">Reset password</a>',
+        html:`<a href="http://localhost:4200/public/reset_password/${user.id}/${token}">Reset password</a>`,
       });
      return info;
   }catch(err){

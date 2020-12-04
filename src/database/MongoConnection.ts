@@ -1,14 +1,12 @@
 import mongoose from 'mongoose'
 import chalk from 'chalk'
 
-//require database URL from dotenv
 
 var connected = chalk.bold.green;
 var error = chalk.bold.redBright;
 var disconnected = chalk.bold.gray;
 var termination = chalk.bold.magenta;
 
-//export this function and imported by server.js
 mongoose.set('useFindAndModify', false);
 
 

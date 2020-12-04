@@ -1,6 +1,6 @@
 import moment from "moment";
 import { Schema } from "mongoose";
-import Task from "../tasks/TASK/Task";
+import Task from "../TASK/Task";
 import { IReminder } from "./IReminder";
 
 export const reminder_schema = new Schema(
@@ -11,7 +11,7 @@ export const reminder_schema = new Schema(
         },
         remindAt: {
             type:Date,
-            required:[true, "The reminder date is needed"]
+            required:[true, "La fecha del Reminder es necesaria"]
         },
         reminderData:{
             type:String,
@@ -75,7 +75,6 @@ reminder_schema.pre<IReminder>("remove",async function (next) {
     }else{
         throw new Error("Tienes que especificar la ID de la Task de Reminder");   
     }
-    
 });
 
 reminder_schema.pre<IReminder>("validate",async function(next){

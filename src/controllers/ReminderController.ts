@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { responseErrorMaker } from "../handlers/ErrorHandler";
-import Reminder from '../models/reminders/Reminder';
+import Reminder from '../models/REMINDER/Reminder';
 
 
 export const saveReminder = async function (request: Request, res: Response) {

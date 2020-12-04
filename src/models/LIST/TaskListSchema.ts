@@ -1,7 +1,7 @@
 import moment from "moment";
 import { Schema } from "mongoose";
-import Reminder from "../../reminders/Reminder";
-import Task from "../../tasks/TASK/Task";
+import Reminder from "../REMINDER/Reminder";
+import Task from "../TASK/Task";
 import { ITaskList } from "./ITaskList";
 
 
@@ -13,7 +13,7 @@ export const list_schema = new Schema(
             min:3,
             max:45,
             trim:true,
-            required:[true, "The lists´s title is needed"]
+            required:[true, "El titulo de la tarea es necesario"]
         },
         tasks:[{
             type:String,
@@ -23,7 +23,7 @@ export const list_schema = new Schema(
                     function(v:any[]){
                         return v.length>30?false:true
                     },
-                message:"Only 5 task per list"
+                message:"Solo puedes añadir 30 tareas a la lista"
             }
             
         }],
@@ -45,11 +45,10 @@ list_schema.pre<ITaskList>("remove",async function(next){
    
     let deletedTasks = await Task.deleteMany({_id: { $in: this.tasks } })
     let deletedtReminders = await Reminder.deleteMany({idTask: { $in: this.tasks } });
-    console.log(deletedtReminders);
     if(deletedTasks && deletedTasks.ok  &&  deletedtReminders && deletedTasks.ok){
         next();
     }else{
-        throw new Error("Something went wrong");
+        throw new Error("Ha ocurrido un error inesperado, intentelo de nuvo mas tarde ");
     }
 
 })

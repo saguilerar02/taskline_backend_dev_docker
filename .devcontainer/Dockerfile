@@ -17,9 +17,13 @@ RUN if [ "$USER_GID" != "1000" ] || [ "$USER_UID" != "1000" ]; then \
         && chmod -R $USER_UID:$USER_GID /home/node \
         && chmod -R $USER_UID:root /usr/local/share/nvm /usr/local/share/npm-global; \
     fi
-RUN mkdir /ssl_certificates \
-    && openssl genrsa -out /ssl_certificates/privateKey.pem 4096 \
-    && openssl rsa -in privateKey.pem -pubout -out /ssl_certificates/publicKey.pem \
-    && openssl req -new -x509 -key privateKey.pem -out /ssl_certificates/cert.pem -days 360
+RUN mkdir ssl_certificates uploads defaults \
+    && openssl genrsa -out ssl_certificates/privateKey.pem 4096  \
+    && openssl rsa -in ssl_certificates/privateKey.pem -pubout -out ssl_certificates/publicKey.pem \
+    && openssl req -new -x509 -key /ssl_certificates/privateKey.pem -out ssl_certificates/cert.pem -days 360 --subj '/CN=Taskline\/emailAddress=taskline_dev@gmail.com/C=ES/ST=BADAJOZ/L=BADAJOZ/O=TASKLINE Inc'
 
+
+WORKDIR /workspace
+
+RUN npm install
 

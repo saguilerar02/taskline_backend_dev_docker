@@ -5,7 +5,6 @@ import jsonwetoken from 'jsonwebtoken'
 import { responseUserErrorMaker } from '../handlers/ErrorHandler'
 import { IUser } from '../models/USER/IUser'
 import User from '../models/USER/User'
-
 import { comparePassword, encriptarPassword } from '../services/Bcrypter'
 import { sendResetPasswordEmail } from '../services/Mailer'
 
@@ -40,7 +39,7 @@ export const signIn =async function (req:Request, res:Response) {
                 
                     let token = await jsonwetoken.sign({user:user.id},process.env.PRIVATE_KEY as string,{
                         issuer:'taskline',
-                        audience:'https://beermaginary.com',
+                        audience:'https://taskline.com',
                         algorithm:"RS256",
                         expiresIn: "3h"
                     });
@@ -69,7 +68,7 @@ export const resetUserPassword= async function (req:Request, res:Response) {
                 let token = jsonwetoken.verify(req.params['token'],key,
                 { 
                     issuer:'taskline',
-                    audience:'https://beermaginary.com'
+                    audience:'https://taskline.com',
                 });
                 if(token){
                     if(req.body.pass1.length>0 && req.body.pass1.length>0 && req.body.pass1 === req.body.pass2){
@@ -108,7 +107,7 @@ export const sendMailResetPassword= async function (req:Request, res:Response) {
                 if(user){
                     let token = await jsonwetoken.sign({user:user.id},(user.password+user.createdAt.toDateString()),{
                         issuer:'taskline',
-                        audience:'https://beermaginary.com',
+                        audience:'https://taskline.com',
                         expiresIn: '1h'
                     });
                     await sendResetPasswordEmail(user,token);

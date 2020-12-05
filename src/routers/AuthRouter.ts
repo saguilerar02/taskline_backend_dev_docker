@@ -14,7 +14,7 @@ authRouter.use(async function (req:Request, res:Response, next) {
         if(token){
             let verified = jsonwebtoken.verify(token,process.env.PUBLIC_KEY as string,{ 
                 issuer:'taskline',
-                audience:'https://beermaginary.com'
+                audience:'https://taskline.com',
             }) as any;
             if(!verified)res.status(403).send({error:"Su token de autenticación es inválido o ha caducado"});
             req.user = verified.user

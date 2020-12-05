@@ -25,5 +25,5 @@ RUN mkdir ssl_certificates uploads defaults \
 
 WORKDIR /workspace
 
-RUN npm install
+ENTRYPOINT npm install
 

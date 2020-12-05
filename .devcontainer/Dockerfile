@@ -22,6 +22,6 @@ RUN mkdir ssl_certificates uploads defaults \
     && openssl rsa -in ssl_certificates/privateKey.pem -pubout -out ssl_certificates/publicKey.pem \
     && openssl req -new -x509 -key /ssl_certificates/privateKey.pem -out ssl_certificates/cert.pem -days 360 --subj '/CN=Taskline\/emailAddress=taskline_dev@gmail.com/C=ES/ST=BADAJOZ/L=BADAJOZ/O=TASKLINE Inc'
 
-
+ADD https://img.pngio.com/no-avatar-png-transparent-png-download-for-free-3856300-trzcacak-png-avatar-920_954.png /defaults/avatar.png
 WORKDIR /workspace
 

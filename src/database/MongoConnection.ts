@@ -2,16 +2,16 @@ import mongoose from 'mongoose'
 import chalk from 'chalk'
 
 
-var connected = chalk.bold.green;
-var error = chalk.bold.redBright;
-var disconnected = chalk.bold.gray;
-var termination = chalk.bold.magenta;
+const connected = chalk.bold.green;
+const error = chalk.bold.redBright;
+const disconnected = chalk.bold.gray;
+const termination = chalk.bold.magenta;
 
 mongoose.set('useFindAndModify', false);
 
 
 let connection =function(){
-    var dbURL = process.env.DATABASE as string;
+    const dbURL = process.env.DATABASE as string;
      mongoose.connect(dbURL, {useNewUrlParser:true, useUnifiedTopology:true, useCreateIndex:true});
 
     mongoose.connection.on('connected', function(){

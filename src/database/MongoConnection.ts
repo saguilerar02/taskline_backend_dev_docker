@@ -15,20 +15,20 @@ let connection =function(){
      mongoose.connect(dbURL, {useNewUrlParser:true, useUnifiedTopology:true, useCreateIndex:true});
 
     mongoose.connection.on('connected', function(){
-        console.log(connected("Mongoose default connection is open to ", dbURL));
+        console.log(connected("Se ha conectado con MongoDB en la direccion... ", dbURL));
     });
 
     mongoose.connection.on('error', function(err){
-        console.log(error("Mongoose default connection has occured "+err+" error"));
+        console.log(error("Ha ocurrido el siguiente erro: "+err));
     });
 
     mongoose.connection.on('disconnected', function(){
-        console.log(disconnected("Mongoose default connection is disconnected"));
+        console.log(disconnected("Se ha desconectado de MongoDB exitosamente"));
     });
 
     process.on('SIGINT', function(){
         mongoose.connection.close(function(){
-            console.log(termination("Mongoose default connection is disconnected due to application termination"));
+            console.log(termination("La aplicación ha terminaado y la conexción a MongoDB también"));
             process.exit(0)
         });
     });
